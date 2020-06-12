@@ -7,13 +7,13 @@ namespace SearchEngineResultsCounting.BizLogic
     {
         private readonly ILogger<ArgumentsValidator> _logger;
 
-        private string text;
+        private string[] texts;
 
-        string IArgumentsValidator.Text
+        string[] IArgumentsValidator.Texts
         {
             get
             {
-                return text;
+                return texts;
             }
         }
 
@@ -26,12 +26,12 @@ namespace SearchEngineResultsCounting.BizLogic
         {
             if (args.Length < 1)
             {
-                _logger.LogError($"There is not text to search. Arguments Count {args.Length}");
+                _logger.LogError($"There is not texts to search. Arguments Count {args.Length}");
             }
             else
             {
-                text = args[args.Length - 1];
-                _logger.LogInformation($"Text to search will be '{text}'");
+                texts = args;
+                _logger.LogInformation($"{args.Length} texts to search was found.");
             }
             return true;
         }

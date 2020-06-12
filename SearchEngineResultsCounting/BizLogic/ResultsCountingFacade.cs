@@ -1,8 +1,10 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using SearchEngineResultsCounting.BizLogic.Contract;
 using SearchEngineResultsCounting.Contracts;
 
 namespace SearchEngineResultsCounting.BizLogic
@@ -20,29 +22,83 @@ namespace SearchEngineResultsCounting.BizLogic
             _logger = logger;
         }
 
-        public string FindAndCompareResults(string text)
+        public string FindAndCompareResults(string[] texts)
         {
-            return FormatResults(GetResults(text));
+            var summaryResult = new StringBuilder();
+            var textResults = AppendResults(texts, summaryResult);
+
+            AppendEnginesWinner(textResults, summaryResult);
+
+            AppendTotalWinner(textResults, summaryResult);
+
+            return summaryResult.ToString();
         }
 
-        private ConcurrentDictionary<string, int> GetResults(string text)
+        private List<EngineResult> AppendResults(string[] texts, StringBuilder summaryResult)
         {
-            var results = new ConcurrentDictionary<string, int>();
+            var textResults = new List<EngineResult>(texts.Length);
+            object sync = new Object();
+            Parallel.ForEach(texts, text =>
+            {
+                var currentResults = GetResults(text);
+                lock(sync) 
+                {
+                    textResults.AddRange(currentResults);
+                    summaryResult.AppendLine($"{text}: {FormatResults(currentResults)}");
+                }
+            });
+            return textResults;
+        }
+
+        private void AppendTotalWinner(List<EngineResult> textResults, StringBuilder summaryResult)
+        {
+            var groupResults = textResults.GroupBy(engineResult => engineResult.Text)
+                .Select(g => new { 
+                    Text = g.First().Text,
+                    Sum = g.Sum(er => er.Count)
+                });
+            int maxSum = groupResults.Max(gr => gr.Sum);
+            var winners = string.Join(", ", groupResults.Where(gr => gr.Sum == maxSum)
+                .Select(gr => gr.Text));
+            summaryResult.AppendLine($"Total winner(s): {winners}");
+        }
+
+        private void AppendEnginesWinner(List<EngineResult> textResults, StringBuilder summaryResult)
+        {
+            foreach (var group in textResults.GroupBy(engineResult => engineResult.EngineName))
+            {
+                if(group == null) continue;
+                var maxCount = group.Max(er => er.Count);
+                var resultLine = string.Join(", ",
+                    group.Where(engineResult => engineResult.Count == maxCount)
+                        .Select(engineResult => engineResult.Text)
+                );
+                summaryResult.AppendLine($"{group.First().EngineName} winner(s): {resultLine} ");
+            }
+        }
+
+        private List<EngineResult> GetResults(string text)
+        {
+            var results = new List<EngineResult>();
 
             Parallel.ForEach(_engines, engine =>
             {
-                if (!results.TryAdd(engine.Name, engine.GetResultsCount(text)))
-                {
-                    _logger.LogError($"Can't add {engine.Name}. It already exists in results.");
-                }
+                var engineResult = new EngineResult() {
+                    EngineName = engine.Name,
+                    Text = text,
+                    Count = engine.GetResultsCount(text)
+                };
+                results.Add(engineResult);
             });
 
             return results;
         }
 
-        private string FormatResults(ConcurrentDictionary<string, int> results)
-        {
-            return $"Results.Count = {results.Count}";
+        private string FormatResults(List<EngineResult> results)
+        {   
+            return string
+                .Join(" ", results.OrderBy(engineResult => engineResult.EngineName)
+                    .Select(engineResult => $"{engineResult.EngineName}: {engineResult.Count} "));
         }
     }
 }

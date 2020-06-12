@@ -18,13 +18,19 @@ namespace SearchEngineResultsCounting
             ConfigureDI();
             ConfigureLogging();
 
-            _logger.LogDebug("Starting application");
+            //try
+            //{
+                _logger.LogDebug("Starting application");
 
-            RunApp(args);
+                RunApp(args);
 
-            _logger.LogDebug("Application finished");
+                _logger.LogDebug("Application finished");
 
-            Console.ReadLine();
+            //}
+            //catch (Exception ex)
+            //{
+            //    _logger.LogError($"Unhandled error appear. Msg: '{ex.Message}'", ex);
+            //}
         }
 
         private static void RunApp(string[] args)
@@ -33,12 +39,12 @@ namespace SearchEngineResultsCounting
             if (argumentsValidator.Validate(args))
             {
                 var manager = _serviceProvider.GetService<IResultsCountingFacade>();
-                var result = manager.FindAndCompareResults(argumentsValidator.Text);
+                var result = manager.FindAndCompareResults(argumentsValidator.Texts);
                 _logger.LogInformation(result);
-            } 
-            else 
+            }
+            else
             {
-                _logger.LogError("Arguments not valid. Check it and try one more.");
+                _logger.LogError("Arguments not valid. Check it and try one more time.");
             }
         }
 
@@ -47,7 +53,7 @@ namespace SearchEngineResultsCounting
             _serviceProvider = new ServiceCollection()
                 .AddLogging(builder => builder
                     .AddConsole()
-                    .SetMinimumLevel(LogLevel.Debug))
+                    .SetMinimumLevel(LogLevel.Information))
                 .AddTransient<ISearchEngine, GoogleEngine>()
                 .AddTransient<ISearchEngine, MsnEngine>()
                 .AddTransient<IResultsCountingFacade, ResultsCountingFacade>()

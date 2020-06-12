@@ -2,7 +2,7 @@ namespace SearchEngineResultsCounting.Contracts
 {
     public interface IArgumentsValidator
     {
-        string Text { get; }
+        string[] Texts { get; }
 
         bool Validate(string[] args);
     }
