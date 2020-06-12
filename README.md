@@ -1,5 +1,9 @@
 # search-engine-results-counting
 Search engine results counting
+## Run Tests
+dotnet test
+## Run Application
+dotnet run [the list of words to search]
 
 # Steps to init solution and project
 dotnet new sln --name SearchEngineResultsCounting

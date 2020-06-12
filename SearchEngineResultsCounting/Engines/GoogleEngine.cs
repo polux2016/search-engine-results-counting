@@ -26,7 +26,7 @@ namespace SearchEngineResultsCounting.Engines
 
         public long GetResultsCount(string text)
         {
-            var resultsCount = GetGoogleCount(text);
+            var resultsCount = 0;//GetGoogleCount(text);
             _logger.LogDebug($"{Name} get {resultsCount} for {text}");
             return resultsCount;
         }
