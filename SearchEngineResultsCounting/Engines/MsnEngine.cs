@@ -12,7 +12,7 @@ namespace SearchEngineResultsCounting.Engines
         {
             _logger = logger;
         }
-        public int GetResultsCount(string text)
+        public long GetResultsCount(string text)
         {
             var resultsCount = text.Length;
             _logger.LogDebug($"{Name} get {resultsCount} for {text}");

@@ -10,3 +10,10 @@ dotnet sln add SearchEngineResultsCounting/SearchEngineResultsCounting.csproj
 dotnet add package Microsoft.Extensions.DependencyInjection
 dotnet add package Microsoft.Extensions.Logging
 dotnet add package Microsoft.Extensions.Logging.Console
+dotnet add package Microsoft.Extensions.Http
+
+# Google Search result
+## KEY 
+AIzaSyCp3LWWCVszsF_ES1JXA5OsRA27If3CGHU
+## Example 
+GET https://www.googleapis.com/customsearch/v1?key=AIzaSyCp3LWWCVszsF_ES1JXA5OsRA27If3CGHU&cx=017576662512468239146:omuauf_lfve&q=[text to find]

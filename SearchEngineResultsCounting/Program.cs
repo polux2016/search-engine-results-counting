@@ -51,9 +51,10 @@ namespace SearchEngineResultsCounting
         private static void ConfigureDI()
         {
             _serviceProvider = new ServiceCollection()
+                .AddHttpClient()
                 .AddLogging(builder => builder
                     .AddConsole()
-                    .SetMinimumLevel(LogLevel.Information))
+                    .SetMinimumLevel(LogLevel.Debug))
                 .AddTransient<ISearchEngine, GoogleEngine>()
                 .AddTransient<ISearchEngine, MsnEngine>()
                 .AddTransient<IResultsCountingFacade, ResultsCountingFacade>()

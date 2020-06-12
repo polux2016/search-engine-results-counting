@@ -8,6 +8,6 @@ namespace SearchEngineResultsCounting.BizLogic.Contract
 
         public string Text;
 
-        public int Count;
+        public long Count;
     }
 }

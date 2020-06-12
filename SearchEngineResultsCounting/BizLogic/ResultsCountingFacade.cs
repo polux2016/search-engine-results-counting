@@ -57,7 +57,7 @@ namespace SearchEngineResultsCounting.BizLogic
                     Text = g.First().Text,
                     Sum = g.Sum(er => er.Count)
                 });
-            int maxSum = groupResults.Max(gr => gr.Sum);
+            var maxSum = groupResults.Max(gr => gr.Sum);
             var winners = string.Join(", ", groupResults.Where(gr => gr.Sum == maxSum)
                 .Select(gr => gr.Text));
             summaryResult.AppendLine($"Total winner(s): {winners}");

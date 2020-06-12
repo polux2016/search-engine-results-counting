@@ -4,6 +4,6 @@ namespace SearchEngineResultsCounting.Contracts
     {
         string Name { get; }
 
-        int GetResultsCount(string text);
+        long GetResultsCount(string text);
     }
 }
