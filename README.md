@@ -9,12 +9,14 @@ dotnet run [the list of words to search]
 dotnet new sln --name SearchEngineResultsCounting
 dotnet new console --name SearchEngineResultsCounting
 dotnet sln add SearchEngineResultsCounting/SearchEngineResultsCounting.csproj
+dotnet sln add SearchEngineResultsCounting.Tests/SearchEngineResultsCounting.Tests.csproj
 
 # Packages 
 dotnet add package Microsoft.Extensions.DependencyInjection
-dotnet add package Microsoft.Extensions.Logging
+c
 dotnet add package Microsoft.Extensions.Logging.Console
 dotnet add package Microsoft.Extensions.Http
+dotnet add package Moq 
 
 # Google Search 
 ## KEY 

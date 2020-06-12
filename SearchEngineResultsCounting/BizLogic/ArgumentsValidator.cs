@@ -9,7 +9,7 @@ namespace SearchEngineResultsCounting.BizLogic
 
         private string[] texts;
 
-        string[] IArgumentsValidator.Texts
+        public string[] Texts
         {
             get
             {
