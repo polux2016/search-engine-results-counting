@@ -9,8 +9,8 @@ namespace SearchEngineResultsCounting.Engines
 {
     public class GoogleEngine : ISearchEngine
     {
-        const string UrlFormat = "https://www.googleapis.com/customsearch/v1?key={0}&cx=017576662512468239146:omuauf_lfve&q={1}";
-        const string ApiKey = "AIzaSyCp3LWWCVszsF_ES1JXA5OsRA27If3CGHU";
+        const string urlFormat = "https://www.googleapis.com/customsearch/v1?key={0}&cx=017576662512468239146:omuauf_lfve&q={1}";
+        const string apiKey = "AIzaSyCp3LWWCVszsF_ES1JXA5OsRA27If3CGHU";
         private readonly ILogger<GoogleEngine> _logger;
 
         private readonly IHttpClientFactory _httpClientFactory;
@@ -48,9 +48,9 @@ namespace SearchEngineResultsCounting.Engines
             }
         }
 
-        private string GetUrl(string textToFind)
+        private string GetUrl(string text)
         {
-            return string.Format(UrlFormat, ApiKey, textToFind);
+            return string.Format(urlFormat, apiKey, text);
         }
     }
 }
