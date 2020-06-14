@@ -22,7 +22,7 @@ namespace SearchEngineResultsCounting.Tests.BizLogic
         {
             _argumentsValidator.Validate(args);
 
-            Assert.Equal(_argumentsValidator.Texts, texts);
+            Assert.Equal(texts, _argumentsValidator.Texts);
         }
 
         [Fact]
