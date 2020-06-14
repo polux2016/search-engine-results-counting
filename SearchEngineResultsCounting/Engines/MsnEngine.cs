@@ -31,18 +31,24 @@ namespace SearchEngineResultsCounting.Engines
 
         private long GetMsnCount(string text)
         {
-            using(var httpClient = _httpClientFactory.CreateClient())
+            string responseStr = GetString(GetUrl(text));
+            MsnEngineContract.Root response = null;
+            try {
+                response = JsonSerializer.Deserialize<MsnEngineContract.Root>(responseStr);
+            } catch (Exception ex)
             {
+                _logger.LogError($"Can't parse the response. Msg: {ex.Message}. response string {responseStr}");
+            }
+            return response == null ? -1 : response.totalEstimatedMatches;
+        }
+
+        protected virtual string GetString(string url)
+        {
+            using (var httpClient = _httpClientFactory.CreateClient())
+            {   
+                _logger.LogDebug($"GetString for url = {url}");
                 httpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", new string[] {accessKey});
-                var responseStr = httpClient.GetStringAsync(GetUrl(text)).GetAwaiter().GetResult();
-                MsnEngineContract.Root response = null;
-                try {
-                    response = JsonSerializer.Deserialize<MsnEngineContract.Root>(responseStr);
-                } catch (Exception ex)
-                {
-                    _logger.LogError($"Can't parse the response. Msg: {ex.Message}. response string {responseStr}");
-                }
-                return response == null ? -1 : response.totalEstimatedMatches;
+                return httpClient.GetStringAsync(url).GetAwaiter().GetResult();
             }
         }
 
