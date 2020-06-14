@@ -17,7 +17,7 @@ namespace SearchEngineResultsCounting.Engines
 
         public string Name { get; } = "Google Engine";
 
-        public GoogleEngine(ILogger<GoogleEngine> logger, 
+        public GoogleEngine(ILogger<GoogleEngine> logger,
             IHttpClientFactory httpClientFactory)
         {
             _logger = logger;
@@ -33,24 +33,31 @@ namespace SearchEngineResultsCounting.Engines
 
         private long GetGoogleCount(string text)
         {
-            using(var httpClient = _httpClientFactory.CreateClient())
+            string responseStr = GetString(GetUrl(text));
+            GoogleEngineContract.Root response = null;
+            try
             {
-                _logger.LogDebug($"GetUrl(text) = {GetUrl(text)}");
-                var responseStr = httpClient.GetStringAsync(GetUrl(text)).GetAwaiter().GetResult();
-                GoogleEngineContract.Root response = null;
-                try {
-                    response = JsonSerializer.Deserialize<GoogleEngineContract.Root>(responseStr);
-                } catch (Exception ex)
-                {
-                    _logger.LogError($"Can't parse the response. Msg: {ex.Message}. response string {responseStr}");
-                }
-                return response == null ? -1 : long.Parse(response.searchInformation.totalResults);
+                response = JsonSerializer.Deserialize<GoogleEngineContract.Root>(responseStr);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Can't parse the response. Msg: {ex.Message}. response string {responseStr}");
+            }
+            return response == null ? -1 : long.Parse(response.searchInformation.totalResults);
+        }
+
+        protected virtual string GetString(string url)
+        {
+            using (var httpClient = _httpClientFactory.CreateClient())
+            {   
+                _logger.LogDebug($"GetString for url = {url}");
+                return httpClient.GetStringAsync(url).GetAwaiter().GetResult();
             }
         }
 
         private string GetUrl(string text)
         {
-            return string.Format(urlFormat, apiKey, text);
+            return string.Format(urlFormat, apiKey, Uri.EscapeDataString(text));
         }
     }
 }
