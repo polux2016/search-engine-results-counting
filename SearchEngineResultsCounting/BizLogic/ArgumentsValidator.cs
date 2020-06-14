@@ -26,7 +26,7 @@ namespace SearchEngineResultsCounting.BizLogic
         {
             if (args.Length < 1)
             {
-                _logger.LogError($"There is not texts to search. Arguments Count {args.Length}");
+                _logger.LogError($"There are no texts to search. Arguments Count {args.Length}");
             }
             else
             {
