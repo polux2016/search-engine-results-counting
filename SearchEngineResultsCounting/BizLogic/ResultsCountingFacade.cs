@@ -24,6 +24,8 @@ namespace SearchEngineResultsCounting.BizLogic
 
         public string FindAndCompareResults(string[] texts)
         {
+            if(!Validation(texts)) { return ""; }
+
             var summaryResult = new StringBuilder();
             var textResults = AppendResults(texts, summaryResult);
 
@@ -32,6 +34,27 @@ namespace SearchEngineResultsCounting.BizLogic
             AppendTotalWinner(textResults, summaryResult);
 
             return summaryResult.ToString();
+        }
+
+        private bool Validation(string[] texts)
+        {
+            _ = texts ?? throw new ArgumentNullException();
+
+            if (texts.Length == 0)
+            {
+                _logger.LogInformation("No text to find");
+
+                return false;
+            }
+
+            if (_engines.Count() == 0)
+            {
+                _logger.LogInformation("No engines to search");
+
+                return false;
+            }
+
+            return true;
         }
 
         private List<EngineResult> AppendResults(string[] texts, StringBuilder summaryResult)
@@ -58,7 +81,8 @@ namespace SearchEngineResultsCounting.BizLogic
                     Sum = g.Sum(er => er.Count)
                 });
             var maxSum = groupResults.Max(gr => gr.Sum);
-            var winners = string.Join(", ", groupResults.Where(gr => gr.Sum == maxSum)
+            var winners = string.Join(", ", groupResults.OrderBy(gr => gr.Text)
+                .Where(gr => gr.Sum == maxSum)
                 .Select(gr => gr.Text));
             summaryResult.AppendLine($"Total winner(s): {winners}");
         }
@@ -71,6 +95,7 @@ namespace SearchEngineResultsCounting.BizLogic
                 var maxCount = group.Max(er => er.Count);
                 var resultLine = string.Join(", ",
                     group.Where(engineResult => engineResult.Count == maxCount)
+                        .OrderBy(engineResult => engineResult.Text)
                         .Select(engineResult => engineResult.Text)
                 );
                 summaryResult.AppendLine($"{group.First().EngineName} winner(s): {resultLine} ");
@@ -91,7 +116,7 @@ namespace SearchEngineResultsCounting.BizLogic
                 results.Add(engineResult);
             });
 
-            return results;
+            return results.OrderBy(r => r.Count).ToList();
         }
 
         private string FormatResults(List<EngineResult> results)
