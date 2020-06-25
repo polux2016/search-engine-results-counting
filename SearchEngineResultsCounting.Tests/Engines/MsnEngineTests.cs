@@ -1,10 +1,8 @@
 using System.Net.Http;
-using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
 using SearchEngineResultsCounting.Engines;
-using SearchEngineResultsCounting.Engines.Contract;
 using Xunit;
 
 namespace SearchEngineResultsCounting.Tests.Engines
@@ -26,9 +24,7 @@ namespace SearchEngineResultsCounting.Tests.Engines
 
         private void SetTheResponse(long totalResultsCount)
         {
-            var responceObj = new MsnEngineContract.Root();
-            responceObj.totalEstimatedMatches = totalResultsCount;
-            var responceStr = JsonSerializer.Serialize(responceObj);
+            var responceStr = "{\"totalEstimatedMatches\": " + totalResultsCount.ToString() + "}";
 
             _MsnEngineMock.Reset();
             _MsnEngineMock.CallBase = true;

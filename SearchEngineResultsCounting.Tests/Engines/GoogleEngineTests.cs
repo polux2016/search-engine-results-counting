@@ -1,10 +1,8 @@
 using System.Net.Http;
-using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
 using SearchEngineResultsCounting.Engines;
-using SearchEngineResultsCounting.Engines.Contract;
 using Xunit;
 
 namespace SearchEngineResultsCounting.Tests.Engines
@@ -26,12 +24,7 @@ namespace SearchEngineResultsCounting.Tests.Engines
 
         private void SetTheResponse(long totalResultsCount)
         {
-            var responceObj = new GoogleEngineContract.Root();
-            responceObj.searchInformation = new GoogleEngineContract.SearchInformation()
-            {
-                totalResults = totalResultsCount.ToString()
-            };
-            var responceStr = JsonSerializer.Serialize(responceObj);
+            var responceStr = "{\"searchInformation\": {\"totalResults\": \"" + totalResultsCount.ToString() + "\"}}";
 
             _googleEngineMock.Reset();
             _googleEngineMock.CallBase = true;

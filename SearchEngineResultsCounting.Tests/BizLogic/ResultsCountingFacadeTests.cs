@@ -7,7 +7,6 @@ using SearchEngineResultsCounting.Contracts;
 using SearchEngineResultsCounting.BizLogic;
 using SearchEngineResultsCounting.Engines;
 using System.Net.Http;
-using SearchEngineResultsCounting.Engines.Contract;
 using Moq.Protected;
 using System.Text.Json;
 
@@ -74,12 +73,7 @@ namespace SearchEngineResultsCounting.Tests.BizLogic
 
         private void SetTheResponse(long totalResultsCount, Mock<GoogleEngine> googleEngineMock)
         {
-            var responceObj = new GoogleEngineContract.Root();
-            responceObj.searchInformation = new GoogleEngineContract.SearchInformation()
-            {
-                totalResults = totalResultsCount.ToString()
-            };
-            var responceStr = JsonSerializer.Serialize(responceObj);
+            var responceStr = "{'searchInformation': {'totalResultsCount': '{" + totalResultsCount.ToString() + "}'}}";
 
             googleEngineMock.Reset();
             googleEngineMock.CallBase = true;

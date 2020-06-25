@@ -1,9 +1,8 @@
 using Microsoft.Extensions.Logging;
 using SearchEngineResultsCounting.Contracts;
-using SearchEngineResultsCounting.Engines.Contract;
 using System;
 using System.Net.Http;
-using System.Text.Json;
+using System.Json;
 
 namespace SearchEngineResultsCounting.Engines
 {
@@ -34,16 +33,17 @@ namespace SearchEngineResultsCounting.Engines
         private long GetGoogleCount(string text)
         {
             string responseStr = GetString(GetUrl(text));
-            GoogleEngineContract.Root response = null;
+            JsonValue response = null;
             try
             {
-                response = JsonSerializer.Deserialize<GoogleEngineContract.Root>(responseStr);
+                response = JsonObject.Parse(responseStr);
+                return long.Parse(response["searchInformation"]["totalResults"]);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Can't parse the response. Msg: {ex.Message}. response string {responseStr}");
+                throw ex;
             }
-            return response == null ? -1 : long.Parse(response.searchInformation.totalResults);
         }
 
         protected virtual string GetString(string url)

@@ -1,27 +1,27 @@
 using System;
 using System.Net.Http;
-using System.Text.Json;
+using System.Json;
 using Microsoft.Extensions.Logging;
 using SearchEngineResultsCounting.Contracts;
-using SearchEngineResultsCounting.Engines.Contract;
+
 
 namespace SearchEngineResultsCounting.Engines
 {
     public class MsnEngine : ISearchEngine
     {
-        const string accessKey = "7947afa74a6647eaa3838c2cfc394ebf";
+        const string accessKey = "540b89c803a44eab97355fcb52c87cbe";
         const string uriBase = "https://api.cognitive.microsoft.com/bing/v7.0/news/search";
         private readonly ILogger<MsnEngine> _logger;
         private readonly IHttpClientFactory _httpClientFactory;
 
         public string Name { get; } = "MSN";
-        public MsnEngine(ILogger<MsnEngine> logger, 
+        public MsnEngine(ILogger<MsnEngine> logger,
             IHttpClientFactory httpClientFactory)
         {
             _logger = logger;
             _httpClientFactory = httpClientFactory;
         }
-        
+
         public long GetResultsCount(string text)
         {
             var resultsCount = GetMsnCount(text);
@@ -32,22 +32,25 @@ namespace SearchEngineResultsCounting.Engines
         private long GetMsnCount(string text)
         {
             string responseStr = GetString(GetUrl(text));
-            MsnEngineContract.Root response = null;
-            try {
-                response = JsonSerializer.Deserialize<MsnEngineContract.Root>(responseStr);
-            } catch (Exception ex)
+            JsonValue response = null;
+            try
+            {
+                response = JsonObject.Parse(responseStr);
+                return response["totalEstimatedMatches"];
+            }
+            catch (Exception ex)
             {
                 _logger.LogError($"Can't parse the response. Msg: {ex.Message}. response string {responseStr}");
+                throw ex;
             }
-            return response == null ? -1 : response.totalEstimatedMatches;
         }
 
         protected virtual string GetString(string url)
         {
             using (var httpClient = _httpClientFactory.CreateClient())
-            {   
+            {
                 _logger.LogDebug($"GetString for url = {url}");
-                httpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", new string[] {accessKey});
+                httpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", new string[] { accessKey });
                 return httpClient.GetStringAsync(url).GetAwaiter().GetResult();
             }
         }
