@@ -159,8 +159,6 @@ namespace SearchEngineResultsCounting.BizLogic
                 throw;
             }
 
-            _logger.LogDebug(results.Count.ToString());
-
             return results.OrderBy(r => r.Count).ToList();
         }
 

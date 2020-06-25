@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using SearchEngineResultsCounting.Contracts;
 using SearchEngineResultsCounting.BizLogic;
 using SearchEngineResultsCounting.Engines;
+using Microsoft.Extensions.Configuration;
 
 namespace SearchEngineResultsCounting
 {
@@ -15,7 +16,8 @@ namespace SearchEngineResultsCounting
 
         static void Main(string[] args)
         {
-            ConfigureDI();
+            var configuration = ConfigureAppSettings();
+            ConfigureDI(configuration);
             ConfigureLogging();
 
             try
@@ -33,18 +35,24 @@ namespace SearchEngineResultsCounting
             }
         }
 
+        private static IConfiguration ConfigureAppSettings()
+        {
+            IConfiguration config = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", false, true)
+                .Build();
+            return config;
+        }
+
         private static void RunApp(string[] args)
         {
             var argumentsValidator = _serviceProvider.GetService<IArgumentsValidator>();
             if (argumentsValidator.Validate(args))
             {
                 var sepparator = new string('=', 50);
+                var lineSepparator = $"{sepparator} Result report {sepparator}{Environment.NewLine}";
                 var manager = _serviceProvider.GetService<IResultsCountingFacade>();
                 var result = manager.FindAndCompareResults(argumentsValidator.Texts);
-                _logger.LogInformation(result);
-                Console.WriteLine($"{sepparator} Result report {sepparator}");
-                Console.WriteLine(result);
-                Console.WriteLine($"{sepparator} Result report {sepparator}");
+                Console.WriteLine($"{lineSepparator}{result}{lineSepparator}");
                 Console.ReadKey();
             }
             else
@@ -53,17 +61,18 @@ namespace SearchEngineResultsCounting
             }
         }
 
-        private static void ConfigureDI()
+        private static void ConfigureDI(IConfiguration config)
         {
             _serviceProvider = new ServiceCollection()
                 .AddHttpClient()
                 .AddLogging(builder => builder
                     .AddConsole()
-                    .SetMinimumLevel(LogLevel.Debug))
+                    .SetMinimumLevel(config.GetSection("LogLevel").Get<LogLevel>()))
                 .AddTransient<ISearchEngine, GoogleEngine>()
                 .AddTransient<ISearchEngine, MsnEngine>()
                 .AddTransient<IResultsCountingFacade, ResultsCountingFacade>()
                 .AddTransient<IArgumentsValidator, ArgumentsValidator>()
+                .AddSingleton<IConfiguration>(config)
                 .BuildServiceProvider();
         }
 

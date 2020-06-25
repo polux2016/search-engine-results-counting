@@ -14,8 +14,6 @@ namespace SearchEngineResultsCounting.Tests.BizLogic
     public class ResultsCountingFacadeTests
     {
         private readonly Mock<ILogger<ResultsCountingFacade>> _loggerMock;
-        private readonly Mock<ILogger<GoogleEngine>> _loggerMockGoogleEngine;
-        private readonly Mock<IHttpClientFactory> _httpClientFactoryMock;
         private readonly Mock<ISearchEngine> _searchEngineFirst;
         private readonly Mock<ISearchEngine> _searchEngineSecond;
         private readonly Mock<ISearchEngine> _searchEngineThird;

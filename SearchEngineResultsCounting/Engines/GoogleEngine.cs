@@ -4,13 +4,14 @@ using System;
 using System.Net.Http;
 using System.Json;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace SearchEngineResultsCounting.Engines
 {
     public class GoogleEngine : ISearchEngine
     {
         const string urlFormat = "https://www.googleapis.com/customsearch/v1?key={0}&cx=017576662512468239146:omuauf_lfve&q={1}";
-        const string apiKey = "AIzaSyCp3LWWCVszsF_ES1JXA5OsRA27If3CGHU";
+        private readonly string _apiKey;
         private readonly ILogger<GoogleEngine> _logger;
 
         private readonly IHttpClientFactory _httpClientFactory;
@@ -18,10 +19,12 @@ namespace SearchEngineResultsCounting.Engines
         public string Name { get; } = "Google Engine";
 
         public GoogleEngine(ILogger<GoogleEngine> logger,
-            IHttpClientFactory httpClientFactory)
+            IHttpClientFactory httpClientFactory,
+            IConfiguration config)
         {
             _logger = logger;
             _httpClientFactory = httpClientFactory;
+            _apiKey = config.GetSection("GoogleEngineConfig:ApiKey").Get<string>();
         }
 
         public async Task<long> GetResultsCount(string text)
@@ -58,7 +61,12 @@ namespace SearchEngineResultsCounting.Engines
 
         private string GetUrl(string text)
         {
-            return string.Format(urlFormat, apiKey, Uri.EscapeDataString(text));
+            return string.Format(urlFormat, _apiKey, Uri.EscapeDataString(text));
+        }
+
+        public class Config
+        {
+            public String ApiKey;
         }
     }
 }

@@ -4,22 +4,26 @@ using System.Json;
 using Microsoft.Extensions.Logging;
 using SearchEngineResultsCounting.Contracts;
 using System.Threading.Tasks;
+using System.Security;
+using Microsoft.Extensions.Configuration;
 
 namespace SearchEngineResultsCounting.Engines
 {
     public class MsnEngine : ISearchEngine
     {
-        const string accessKey = "540b89c803a44eab97355fcb52c87cbe";
         const string uriBase = "https://api.cognitive.microsoft.com/bing/v7.0/news/search";
+        private readonly string _accessKey;
         private readonly ILogger<MsnEngine> _logger;
         private readonly IHttpClientFactory _httpClientFactory;
 
         public string Name { get; } = "MSN";
         public MsnEngine(ILogger<MsnEngine> logger,
-            IHttpClientFactory httpClientFactory)
+            IHttpClientFactory httpClientFactory,
+            IConfiguration config)
         {
             _logger = logger;
             _httpClientFactory = httpClientFactory;
+            _accessKey = config.GetSection("MsnEngineConfig:AccessKey").Get<string>();
         }
 
         public async Task<long> GetResultsCount(string text)
@@ -50,7 +54,7 @@ namespace SearchEngineResultsCounting.Engines
             using (var httpClient = _httpClientFactory.CreateClient())
             {
                 _logger.LogDebug($"GetString for url = {url}");
-                httpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", new string[] { accessKey });
+                httpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", new string[] { _accessKey });
                 return await httpClient.GetStringAsync(url);
             }
         }
@@ -58,6 +62,11 @@ namespace SearchEngineResultsCounting.Engines
         private string GetUrl(string text)
         {
             return uriBase + "?q=" + Uri.EscapeDataString(text);
+        }
+
+        public class Config
+        {
+            public string AccessKey;
         }
     }
 }
