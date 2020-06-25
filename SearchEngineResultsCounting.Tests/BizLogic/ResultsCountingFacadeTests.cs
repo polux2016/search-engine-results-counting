@@ -9,6 +9,7 @@ using SearchEngineResultsCounting.Engines;
 using System.Net.Http;
 using Moq.Protected;
 using System.Text.Json;
+using System;
 
 namespace SearchEngineResultsCounting.Tests.BizLogic
 {
@@ -32,7 +33,7 @@ namespace SearchEngineResultsCounting.Tests.BizLogic
 
         [Theory]
         [InlineData("phrase one", 11, 22, 33, 
-            "phrase one: : 11  : 22  : 33  winner(s): phrase one \nTotal winner(s): phrase one\n")]
+            "phrase one: : 11  : 22  : 33 \n winner(s): phrase one \nTotal winner(s): phrase one\n")]
         [InlineData("phrase one", 11, 22, null, 
             "phrase one: : 11  : 22 \n winner(s): phrase one \nTotal winner(s): phrase one\n")]
         [InlineData("phrase one", 11, null, null, 
@@ -45,7 +46,7 @@ namespace SearchEngineResultsCounting.Tests.BizLogic
 
             var actualResult = resultsCountingFacade.FindAndCompareResults(new string[] {text});
 
-            Assert.Equal(expectedResult, actualResult);
+            Assert.Equal(expectedResult.Replace("\n", Environment.NewLine), actualResult);
         }
 
         private ResultsCountingFacade GetResultsCountingFacade(long? count1 = null, long? count2 = null, long? count3 = null)
@@ -66,7 +67,7 @@ namespace SearchEngineResultsCounting.Tests.BizLogic
             if (count.HasValue)
             {
                 engine.Setup(se => se.GetResultsCount(It.IsAny<string>()))
-                    .Returns(count.Value);
+                    .ReturnsAsync(count.Value);
                 engines.Add(engine.Object);
             }
         }

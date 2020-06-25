@@ -1,4 +1,5 @@
 using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
@@ -30,18 +31,18 @@ namespace SearchEngineResultsCounting.Tests.Engines
             _googleEngineMock.CallBase = true;
 
             _googleEngineMock.Protected()
-                .Setup<string>("GetString", ItExpr.IsAny<string>())
-                .Returns(responceStr);
+                .Setup<Task<string>>("GetString", ItExpr.IsAny<string>())
+                .Returns(Task.FromResult(responceStr));
         }
 
         [Theory]
         [InlineData("", 1000)]
         [InlineData("test", 1000)]
-        public void BaseGetCountTest(string text, long count)
+        public async void BaseGetCountTest(string text, long count)
         {
             SetTheResponse(count);
 
-            var result = _googleEngineMock.Object.GetResultsCount(text);
+            var result = await _googleEngineMock.Object.GetResultsCount(text);
 
             Assert.Equal(count, result);
         }
