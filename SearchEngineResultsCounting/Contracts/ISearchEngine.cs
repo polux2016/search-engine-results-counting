@@ -1,9 +1,11 @@
+using System.Threading.Tasks;
+
 namespace SearchEngineResultsCounting.Contracts
 {
     public interface ISearchEngine
     {
         string Name { get; }
 
-        long GetResultsCount(string text);
+        Task<long> GetResultsCount(string text);
     }
 }

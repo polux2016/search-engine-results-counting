@@ -3,6 +3,7 @@ using SearchEngineResultsCounting.Contracts;
 using System;
 using System.Net.Http;
 using System.Json;
+using System.Threading.Tasks;
 
 namespace SearchEngineResultsCounting.Engines
 {
@@ -23,16 +24,16 @@ namespace SearchEngineResultsCounting.Engines
             _httpClientFactory = httpClientFactory;
         }
 
-        public long GetResultsCount(string text)
+        public async Task<long> GetResultsCount(string text)
         {
-            var resultsCount = GetGoogleCount(text);
+            var resultsCount = await GetGoogleCount(text);
             _logger.LogDebug($"{Name} get {resultsCount} for {text}");
             return resultsCount;
         }
 
-        private long GetGoogleCount(string text)
+        private async Task<long> GetGoogleCount(string text)
         {
-            string responseStr = GetString(GetUrl(text));
+            string responseStr = await GetString(GetUrl(text));
             JsonValue response = null;
             try
             {
@@ -46,12 +47,12 @@ namespace SearchEngineResultsCounting.Engines
             }
         }
 
-        protected virtual string GetString(string url)
+        protected virtual async Task<string> GetString(string url)
         {
             using (var httpClient = _httpClientFactory.CreateClient())
             {   
                 _logger.LogDebug($"GetString for url = {url}");
-                return httpClient.GetStringAsync(url).GetAwaiter().GetResult();
+                return await httpClient.GetStringAsync(url);
             }
         }
 

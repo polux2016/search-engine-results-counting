@@ -32,7 +32,7 @@ namespace SearchEngineResultsCounting.Tests.BizLogic
 
         [Theory]
         [InlineData("phrase one", 11, 22, 33, 
-            "phrase one: : 11  : 22  : 33 \n winner(s): phrase one \nTotal winner(s): phrase one\n")]
+            "phrase one: : 11  : 22  : 33  winner(s): phrase one \nTotal winner(s): phrase one\n")]
         [InlineData("phrase one", 11, 22, null, 
             "phrase one: : 11  : 22 \n winner(s): phrase one \nTotal winner(s): phrase one\n")]
         [InlineData("phrase one", 11, null, null, 

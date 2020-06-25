@@ -59,23 +59,26 @@ namespace SearchEngineResultsCounting.BizLogic
             return true;
         }
 
+
         private List<EngineResult> AppendResults(string[] texts, StringBuilder summaryResult)
         {
-            var textResults = new List<EngineResult>(texts.Length);
+            var textResults = new List<EngineResult>();
             object sync = new Object();
+
+            var promises = texts.Select(async text =>
+                {
+                    var currentResults = await GetResults(text);
+                    foreach (var item in currentResults)
+                    {
+                        textResults.Add(item);
+                    }
+                    summaryResult.AppendLine($"{text}: {FormatResults(currentResults)}");
+                }
+            );
 
             try
             {
-                Task.Run(() => Parallel.ForEach(texts, text =>
-                {
-                    var currentResults = GetResults(text);
-                    lock (sync)
-                    {
-                        textResults.AddRange(currentResults);
-                        summaryResult.AppendLine($"{text}: {FormatResults(currentResults)}");
-                    }
-                    _logger.LogDebug($"Processed {text}");
-                })).GetAwaiter().GetResult();
+                Task.WhenAll(promises).GetAwaiter().GetResult();
             }
             catch (AggregateException)
             {
@@ -83,7 +86,7 @@ namespace SearchEngineResultsCounting.BizLogic
                 throw;
             }
 
-            return textResults;
+            return textResults.ToList();
         }
 
         private void AppendTotalWinner(List<EngineResult> textResults, StringBuilder summaryResult)
@@ -129,25 +132,26 @@ namespace SearchEngineResultsCounting.BizLogic
             }
         }
 
-        private List<EngineResult> GetResults(string text)
+        private async Task<List<EngineResult>> GetResults(string text)
         {
             _logger.LogDebug($"Processing {text}");
 
             var results = new ConcurrentBag<EngineResult>();
-
-            try
-            {
-                Task.Run(() => Parallel.ForEach(_engines, engine =>
+            var promises = _engines.Select(async engine =>
                 {
-                     _logger.LogDebug($"Processing {text}. Engine {engine.Name}");
                     var engineResult = new EngineResult()
                     {
                         EngineName = engine.Name,
                         Text = text,
-                        Count = engine.GetResultsCount(text)
+                        Count = await engine.GetResultsCount(text)
                     };
                     results.Add(engineResult);
-                })).GetAwaiter().GetResult();
+                }
+            );
+
+            try
+            {
+                await Task.WhenAll(promises);
             }
             catch (AggregateException)
             {

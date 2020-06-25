@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Json;
 using Microsoft.Extensions.Logging;
 using SearchEngineResultsCounting.Contracts;
-
+using System.Threading.Tasks;
 
 namespace SearchEngineResultsCounting.Engines
 {
@@ -22,16 +22,16 @@ namespace SearchEngineResultsCounting.Engines
             _httpClientFactory = httpClientFactory;
         }
 
-        public long GetResultsCount(string text)
+        public async Task<long> GetResultsCount(string text)
         {
-            var resultsCount = GetMsnCount(text);
+            var resultsCount = await GetMsnCount(text);
             _logger.LogDebug($"{Name} get {resultsCount} for {text}");
             return resultsCount;
         }
 
-        private long GetMsnCount(string text)
+        private async Task<long> GetMsnCount(string text)
         {
-            string responseStr = GetString(GetUrl(text));
+            string responseStr = await GetString(GetUrl(text));
             JsonValue response = null;
             try
             {
@@ -45,13 +45,13 @@ namespace SearchEngineResultsCounting.Engines
             }
         }
 
-        protected virtual string GetString(string url)
+        protected virtual async Task<string> GetString(string url)
         {
             using (var httpClient = _httpClientFactory.CreateClient())
             {
                 _logger.LogDebug($"GetString for url = {url}");
                 httpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", new string[] { accessKey });
-                return httpClient.GetStringAsync(url).GetAwaiter().GetResult();
+                return await httpClient.GetStringAsync(url);
             }
         }
 
