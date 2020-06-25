@@ -1,5 +1,10 @@
 # search-engine-results-counting
-Search engine results counting
+## Search engine results counting
+
+- The application will check the results count for different engines (MSN and Google) for one or few words.
+- The words you can add in parameters 
+- The report will be in console
+
 ## Run Tests
 ```
 dotnet test 
