@@ -38,7 +38,10 @@ namespace SearchEngineResultsCounting.BizLogic
 
         private bool Validation(string[] texts)
         {
-            _ = texts ?? throw new ArgumentNullException();
+            if (texts is null) 
+            {
+                throw new ArgumentNullException();
+            }
 
             if (texts.Length == 0)
             {
@@ -91,7 +94,8 @@ namespace SearchEngineResultsCounting.BizLogic
         {
             foreach (var group in textResults.GroupBy(engineResult => engineResult.EngineName))
             {
-                if(group == null) continue;
+                if(group is null) continue;
+                
                 var maxCount = group.Max(er => er.Count);
                 var resultLine = string.Join(", ",
                     group.Where(engineResult => engineResult.Count == maxCount)
