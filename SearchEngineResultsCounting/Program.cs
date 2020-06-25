@@ -18,19 +18,19 @@ namespace SearchEngineResultsCounting
             ConfigureDI();
             ConfigureLogging();
 
-            //try
-            //{
+            try
+            {
                 _logger.LogDebug("Starting application");
 
                 RunApp(args);
 
                 _logger.LogDebug("Application finished");
 
-            //}
-            //catch (Exception ex)
-            //{
-            //    _logger.LogError($"Unhandled error appear. Msg: '{ex.Message}'", ex);
-            //}
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Unhandled error appear. Msg: '{ex.Message}'", ex);
+            }
         }
 
         private static void RunApp(string[] args)
