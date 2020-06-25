@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
-using System.Collections;
 using Moq;
 using Xunit;
 using SearchEngineResultsCounting.Contracts;
@@ -8,7 +7,6 @@ using SearchEngineResultsCounting.BizLogic;
 using SearchEngineResultsCounting.Engines;
 using System.Net.Http;
 using Moq.Protected;
-using System.Text.Json;
 using System;
 
 namespace SearchEngineResultsCounting.Tests.BizLogic
