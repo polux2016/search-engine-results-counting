@@ -38,9 +38,14 @@ namespace SearchEngineResultsCounting
             var argumentsValidator = _serviceProvider.GetService<IArgumentsValidator>();
             if (argumentsValidator.Validate(args))
             {
+                var sepparator = new string('=', 50);
                 var manager = _serviceProvider.GetService<IResultsCountingFacade>();
                 var result = manager.FindAndCompareResults(argumentsValidator.Texts);
                 _logger.LogInformation(result);
+                Console.WriteLine($"{sepparator} Result report {sepparator}");
+                Console.WriteLine(result);
+                Console.WriteLine($"{sepparator} Result report {sepparator}");
+                Console.ReadKey();
             }
             else
             {
