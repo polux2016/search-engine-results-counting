@@ -24,7 +24,7 @@ namespace SearchEngineResultsCounting.Engines
         {
             _logger = logger;
             _httpClientFactory = httpClientFactory;
-            _apiKey = config.GetSection("GoogleEngineConfig:ApiKey").Get<string>();
+            _apiKey = config["GoogleEngineConfig:ApiKey"];
         }
 
         public async Task<long> GetResultsCount(string text)

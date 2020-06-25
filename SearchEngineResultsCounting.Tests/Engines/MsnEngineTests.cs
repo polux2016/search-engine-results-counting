@@ -1,5 +1,6 @@
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
@@ -10,9 +11,10 @@ namespace SearchEngineResultsCounting.Tests.Engines
 {
     public class MsnEngineTests
     {
-        private readonly Mock<MsnEngine> _MsnEngineMock;
+        private readonly Mock<MsnEngine> _msnEngineMock;
         private readonly Mock<ILogger<MsnEngine>> _loggerMock;
         private readonly Mock<IHttpClientFactory> _httpClientFactoryMock;
+        private readonly Mock<IConfiguration> _configMock;
 
         public MsnEngineTests()
         {
@@ -20,17 +22,23 @@ namespace SearchEngineResultsCounting.Tests.Engines
 
             _httpClientFactoryMock = new Mock<IHttpClientFactory>();
 
-            _MsnEngineMock = new Mock<MsnEngine>(_loggerMock.Object, _httpClientFactoryMock.Object);
+            _configMock = new Mock<IConfiguration>();
+            _configMock.SetupGet(x => x[It.IsAny<string>()]).Returns(string.Empty);
+
+            _msnEngineMock = new Mock<MsnEngine>(_loggerMock.Object, 
+                _httpClientFactoryMock.Object,
+                _configMock.Object
+            );
         }
 
         private void SetTheResponse(long totalResultsCount)
         {
             var responceStr = "{\"totalEstimatedMatches\": " + totalResultsCount.ToString() + "}";
 
-            _MsnEngineMock.Reset();
-            _MsnEngineMock.CallBase = true;
+            _msnEngineMock.Reset();
+            _msnEngineMock.CallBase = true;
 
-            _MsnEngineMock.Protected()
+            _msnEngineMock.Protected()
                 .Setup<Task<string>>("GetString", ItExpr.IsAny<string>())
                 .Returns(Task.FromResult(responceStr));
         }
@@ -42,7 +50,7 @@ namespace SearchEngineResultsCounting.Tests.Engines
         {
             SetTheResponse(count);
 
-            var result = await _MsnEngineMock.Object.GetResultsCount(text);
+            var result = await _msnEngineMock.Object.GetResultsCount(text);
 
             Assert.Equal(count, result);
         }

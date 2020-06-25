@@ -4,7 +4,6 @@ using System.Json;
 using Microsoft.Extensions.Logging;
 using SearchEngineResultsCounting.Contracts;
 using System.Threading.Tasks;
-using System.Security;
 using Microsoft.Extensions.Configuration;
 
 namespace SearchEngineResultsCounting.Engines
@@ -23,7 +22,7 @@ namespace SearchEngineResultsCounting.Engines
         {
             _logger = logger;
             _httpClientFactory = httpClientFactory;
-            _accessKey = config.GetSection("MsnEngineConfig:AccessKey").Get<string>();
+            _accessKey = config["MsnEngineConfig:AccessKey"];
         }
 
         public async Task<long> GetResultsCount(string text)

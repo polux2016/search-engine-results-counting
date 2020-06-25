@@ -16,11 +16,15 @@ namespace SearchEngineResultsCounting.BizLogic
 
         private readonly ILogger<ResultsCountingFacade> _logger;
 
+        private readonly IEnumerable<IAggregator> _aggregators;
+
         public ResultsCountingFacade(IEnumerable<ISearchEngine> engines,
-            ILogger<ResultsCountingFacade> logger)
+            ILogger<ResultsCountingFacade> logger,
+            IEnumerable<IAggregator> aggregators)
         {
             _engines = engines;
             _logger = logger;
+            _aggregators = aggregators;
         }
 
         public string FindAndCompareResults(string[] texts)
@@ -30,9 +34,10 @@ namespace SearchEngineResultsCounting.BizLogic
             var summaryResult = new StringBuilder();
             var textResults = AppendResults(texts, summaryResult);
 
-            AppendEnginesWinner(textResults, summaryResult);
-
-            AppendTotalWinner(textResults, summaryResult);
+            foreach(var aggregator in _aggregators)
+            {
+                aggregator.Append(textResults, summaryResult);
+            }
 
             return summaryResult.ToString();
         }
@@ -59,7 +64,6 @@ namespace SearchEngineResultsCounting.BizLogic
             return true;
         }
 
-
         private List<EngineResult> AppendResults(string[] texts, StringBuilder summaryResult)
         {
             var textResults = new List<EngineResult>();
@@ -72,7 +76,6 @@ namespace SearchEngineResultsCounting.BizLogic
                     {
                         textResults.Add(item);
                     }
-                    summaryResult.AppendLine($"{text}: {FormatResults(currentResults)}");
                 }
             );
 
@@ -87,49 +90,6 @@ namespace SearchEngineResultsCounting.BizLogic
             }
 
             return textResults.ToList();
-        }
-
-        private void AppendTotalWinner(List<EngineResult> textResults, StringBuilder summaryResult)
-        {
-            if (textResults.Count == 0)
-            {
-                _logger.LogInformation("No text results to append total winner.");
-                return;
-            }
-
-            var groupResults = textResults.GroupBy(engineResult => engineResult.Text)
-                .Select(g => new
-                {
-                    Text = g.First().Text,
-                    Sum = g.Sum(er => er.Count)
-                });
-            var maxSum = groupResults.Max(gr => gr.Sum);
-            var winners = string.Join(", ", groupResults.OrderBy(gr => gr.Text)
-                .Where(gr => gr.Sum == maxSum)
-                .Select(gr => gr.Text));
-            summaryResult.AppendLine($"Total winner(s): {winners}");
-        }
-
-        private void AppendEnginesWinner(List<EngineResult> textResults, StringBuilder summaryResult)
-        {
-            if (textResults.Count == 0)
-            {
-                _logger.LogInformation("No text results to append engines winner.");
-                return;
-            }
-
-            foreach (var group in textResults.GroupBy(engineResult => engineResult.EngineName))
-            {
-                if (group is null) continue;
-
-                var maxCount = group.Max(er => er.Count);
-                var resultLine = string.Join(", ",
-                    group.Where(engineResult => engineResult.Count == maxCount)
-                        .OrderBy(engineResult => engineResult.Text)
-                        .Select(engineResult => engineResult.Text)
-                );
-                summaryResult.AppendLine($"{group.First().EngineName} winner(s): {resultLine} ");
-            }
         }
 
         private async Task<List<EngineResult>> GetResults(string text)
@@ -160,13 +120,6 @@ namespace SearchEngineResultsCounting.BizLogic
             }
 
             return results.OrderBy(r => r.Count).ToList();
-        }
-
-        private string FormatResults(List<EngineResult> results)
-        {
-            return string
-                .Join(" ", results.OrderBy(engineResult => engineResult.EngineName)
-                    .Select(engineResult => $"{engineResult.EngineName}: {engineResult.Count} "));
         }
     }
 }

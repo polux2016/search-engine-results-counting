@@ -8,12 +8,17 @@ using SearchEngineResultsCounting.Engines;
 using System.Net.Http;
 using Moq.Protected;
 using System;
+using SearchEngineResultsCounting.BizLogic.Contract;
+using SearchEngineResultsCounting.BizLogic.Aggregators;
 
 namespace SearchEngineResultsCounting.Tests.BizLogic
 {
     public class ResultsCountingFacadeTests
     {
         private readonly Mock<ILogger<ResultsCountingFacade>> _loggerMock;
+        private readonly Mock<ILogger<ResultListAggregator>> _loggerResultListAggregatorMock;
+        private readonly Mock<ILogger<EnginesWinnerAggregator>> _loggerEnginesWinnerAggregatorMock;
+        private readonly Mock<ILogger<TotalWinnerAggregator>> _loggerTotalWinnerAggregatorMock;
         private readonly Mock<ISearchEngine> _searchEngineFirst;
         private readonly Mock<ISearchEngine> _searchEngineSecond;
         private readonly Mock<ISearchEngine> _searchEngineThird;
@@ -21,6 +26,9 @@ namespace SearchEngineResultsCounting.Tests.BizLogic
         public ResultsCountingFacadeTests()
         {
             _loggerMock = new Mock<ILogger<ResultsCountingFacade>>();
+            _loggerResultListAggregatorMock = new Mock<ILogger<ResultListAggregator>>();
+            _loggerEnginesWinnerAggregatorMock = new Mock<ILogger<EnginesWinnerAggregator>>();
+            _loggerTotalWinnerAggregatorMock = new Mock<ILogger<TotalWinnerAggregator>>();
 
             _searchEngineFirst = new Mock<ISearchEngine>().As<ISearchEngine>();
             _searchEngineSecond = new Mock<ISearchEngine>().As<ISearchEngine>();
@@ -55,7 +63,13 @@ namespace SearchEngineResultsCounting.Tests.BizLogic
 
             AddEngineIfNeeded(count3, _searchEngineThird, engines);
 
-            return new ResultsCountingFacade(engines, _loggerMock.Object);
+            var aggregators = new List<IAggregator>() {
+                new ResultListAggregator(_loggerResultListAggregatorMock.Object),
+                new EnginesWinnerAggregator(_loggerEnginesWinnerAggregatorMock.Object),
+                new TotalWinnerAggregator(_loggerTotalWinnerAggregatorMock.Object)
+            };
+
+            return new ResultsCountingFacade(engines, _loggerMock.Object, aggregators);
         }
 
         private void AddEngineIfNeeded(long? count, Mock<ISearchEngine> engine, List<ISearchEngine> engines)

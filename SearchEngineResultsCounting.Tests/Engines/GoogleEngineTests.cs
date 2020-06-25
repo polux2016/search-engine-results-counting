@@ -1,5 +1,6 @@
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
@@ -13,6 +14,7 @@ namespace SearchEngineResultsCounting.Tests.Engines
         private readonly Mock<GoogleEngine> _googleEngineMock;
         private readonly Mock<ILogger<GoogleEngine>> _loggerMock;
         private readonly Mock<IHttpClientFactory> _httpClientFactoryMock;
+        private readonly Mock<IConfiguration> _configMock;
 
         public GoogleEngineTests()
         {
@@ -20,7 +22,12 @@ namespace SearchEngineResultsCounting.Tests.Engines
 
             _httpClientFactoryMock = new Mock<IHttpClientFactory>();
 
-            _googleEngineMock = new Mock<GoogleEngine>(_loggerMock.Object, _httpClientFactoryMock.Object);
+            _configMock = new Mock<IConfiguration>();
+            _configMock.SetupGet(x => x[It.IsAny<string>()]).Returns(string.Empty);
+
+            _googleEngineMock = new Mock<GoogleEngine>(_loggerMock.Object, 
+                _httpClientFactoryMock.Object,
+                _configMock.Object);
         }
 
         private void SetTheResponse(long totalResultsCount)

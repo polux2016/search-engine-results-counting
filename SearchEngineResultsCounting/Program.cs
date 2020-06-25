@@ -5,6 +5,8 @@ using SearchEngineResultsCounting.Contracts;
 using SearchEngineResultsCounting.BizLogic;
 using SearchEngineResultsCounting.Engines;
 using Microsoft.Extensions.Configuration;
+using SearchEngineResultsCounting.BizLogic.Contract;
+using SearchEngineResultsCounting.BizLogic.Aggregators;
 
 namespace SearchEngineResultsCounting
 {
@@ -71,6 +73,10 @@ namespace SearchEngineResultsCounting
                 .AddTransient<ISearchEngine, GoogleEngine>()
                 .AddTransient<ISearchEngine, MsnEngine>()
                 .AddTransient<IResultsCountingFacade, ResultsCountingFacade>()
+                .AddTransient<IArgumentsValidator, ArgumentsValidator>()
+                .AddTransient<IAggregator, ResultListAggregator>()
+                .AddTransient<IAggregator, EnginesWinnerAggregator>()
+                .AddTransient<IAggregator, TotalWinnerAggregator>()
                 .AddTransient<IArgumentsValidator, ArgumentsValidator>()
                 .AddSingleton<IConfiguration>(config)
                 .BuildServiceProvider();
