@@ -33,7 +33,7 @@ namespace SearchEngineResultsCounting.BizLogic.Aggregators
             summaryResult.AppendLine($"Total winner(s): {winners}");
         }
 
-    private new bool Validate(List<EngineResult> textResults, StringBuilder summaryResult)
+        protected override bool Validate(List<EngineResult> textResults, StringBuilder summaryResult)
         {
             if(!base.Validate(textResults, summaryResult))
             {

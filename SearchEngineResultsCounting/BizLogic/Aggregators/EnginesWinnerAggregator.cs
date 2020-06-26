@@ -34,7 +34,7 @@ namespace SearchEngineResultsCounting.BizLogic.Aggregators
             }
         }
 
-        private bool Validate(List<EngineResult> textResults, StringBuilder summaryResult)
+        protected override bool Validate(List<EngineResult> textResults, StringBuilder summaryResult)
         {
             if (textResults is null)
             {

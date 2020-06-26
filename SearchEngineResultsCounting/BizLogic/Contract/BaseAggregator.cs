@@ -8,7 +8,7 @@ namespace SearchEngineResultsCounting.BizLogic.Contract
     {
         public abstract void Append(List<EngineResult> textResults, StringBuilder summaryResult);
 
-        protected bool Validate(List<EngineResult> textResults, StringBuilder summaryResult)
+        protected virtual bool Validate(List<EngineResult> textResults, StringBuilder summaryResult)
         {
             if (textResults is null)
             {
