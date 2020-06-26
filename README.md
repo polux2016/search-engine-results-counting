@@ -1,6 +1,6 @@
-# search-engine-results-counting
-## Search engine results counting
+# Search engine results counting
 
+## Requirements
 - The application will check the results count for different engines (MSN and Google) for one or few words.
 - The words you can add in parameters 
 - The report will be in console
@@ -26,11 +26,20 @@ dotnet sln add SearchEngineResultsCounting.Tests/SearchEngineResultsCounting.Tes
 
 # Packages 
 ```PowerShell
+dotnet add package Microsoft.Extensions.Configuration
+dotnet add package Microsoft.Extensions.Configuration.FileExtensions
+dotnet add package Microsoft.Extensions.Configuration.Json
 dotnet add package Microsoft.Extensions.DependencyInjection
-c
+dotnet add package Microsoft.Extensions.Logging
 dotnet add package Microsoft.Extensions.Logging.Console
 dotnet add package Microsoft.Extensions.Http
+dotnet add package System.Json
+
 dotnet add package Moq 
+dotnet add package xunit 
+dotnet add package xunit.runner.visualstudio 
+dotnet add package coverlet.collector
+dotnet add package Microsoft.Extensions.Logging
 ```
 
 # Google Search 
