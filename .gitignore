@@ -3,3 +3,4 @@ SearchEngineResultsCounting/bin/*
 SearchEngineResultsCounting.Tests/obj/*
 SearchEngineResultsCounting.Tests/bin/*
 .DS_Store
+/.vs/*

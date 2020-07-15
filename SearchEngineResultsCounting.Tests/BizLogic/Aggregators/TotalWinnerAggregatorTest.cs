@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Extensions.Logging;
@@ -10,7 +11,10 @@ namespace SearchEngineResultsCounting.Tests.BizLogic.Aggregators
 {
     public class TotalWinnerAggregatorTest
     {
+        private readonly string nl = Environment.NewLine;
+
         private Mock<ILogger<TotalWinnerAggregator>> _loggerMock;
+
         private TotalWinnerAggregator _aggregator;
 
         public TotalWinnerAggregatorTest()
@@ -35,7 +39,7 @@ namespace SearchEngineResultsCounting.Tests.BizLogic.Aggregators
 
             _aggregator.Append(textResult, sb);
 
-            Assert.Equal("Total winner(s): Text 1\n", sb.ToString());
+            Assert.Equal("Total winner(s): Text 1" + nl, sb.ToString());
         }
     }
 }

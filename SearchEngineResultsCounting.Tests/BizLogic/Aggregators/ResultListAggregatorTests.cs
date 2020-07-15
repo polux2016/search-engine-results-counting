@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Extensions.Logging;
@@ -10,7 +11,10 @@ namespace SearchEngineResultsCounting.Tests.BizLogic.Aggregators
 {
     public class ResultListAggregatorTests
     {
+        private readonly string nl = Environment.NewLine;
+
         private Mock<ILogger<ResultListAggregator>> _loggerMock;
+
         private ResultListAggregator _aggregator;
 
         public ResultListAggregatorTests()
@@ -35,7 +39,7 @@ namespace SearchEngineResultsCounting.Tests.BizLogic.Aggregators
 
             _aggregator.Append(textResult, sb);
 
-            Assert.Equal("Text 1: Test 1: 1 \n", sb.ToString());
+            Assert.Equal("Text 1: Test 1: 1 " + nl, sb.ToString());
         }
     }
 }
