@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SearchEngineResultsCounting": {
+      "commandName": "Project",
+      "commandLineArgs": "\"phrase one\" \"phrase two\""
+    }
+  }
+}
