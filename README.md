@@ -10,11 +10,10 @@
 dotnet test 
 ```
 ## Run Application. 
+Got to "SearchEngineResultsCounting" and run next
 ```
 dotnet run "phrase one" "phrase two" [any other phrases] 
 ```
-
-
 
 # Steps to init solution and project
 ```PowerShell
@@ -65,3 +64,6 @@ Value `7947afa74a6647eaa3838c2cfc394ebf`
 GET https://api.cognitive.microsoft.com/bing/v7.0/news/search?q=test
 ```
 
+# Plans 
+ - Add reading configuration form Cloud 
+ - Check how to work with configuration like an object, not like a dictionary 
