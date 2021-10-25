@@ -1,9 +1,9 @@
-using Xunit;
-using Moq;
-using SearchEngineResultsCounting.BizLogic;
 using Microsoft.Extensions.Logging;
+using Moq;
+using SearchEngineResultsCounting.Services;
+using Xunit;
 
-namespace SearchEngineResultsCounting.Tests.BizLogic
+namespace SearchEngineResultsCounting.Tests.Services
 {
     public class ArgumentsValidatorTests
     {

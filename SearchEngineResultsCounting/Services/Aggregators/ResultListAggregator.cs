@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Extensions.Logging;
-using SearchEngineResultsCounting.BizLogic.Contract;
+using SearchEngineResultsCounting.Services.Contract;
 
-namespace SearchEngineResultsCounting.BizLogic.Aggregators
+namespace SearchEngineResultsCounting.Services.Aggregators
 {
     public class ResultListAggregator : BaseAggregator, IAggregator
     {

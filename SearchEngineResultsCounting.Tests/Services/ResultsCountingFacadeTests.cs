@@ -1,17 +1,16 @@
-using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
-using Moq;
-using Xunit;
-using SearchEngineResultsCounting.Contracts;
-using SearchEngineResultsCounting.BizLogic;
-using SearchEngineResultsCounting.Engines;
-using System.Net.Http;
-using Moq.Protected;
 using System;
-using SearchEngineResultsCounting.BizLogic.Contract;
-using SearchEngineResultsCounting.BizLogic.Aggregators;
+using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
+using Moq;
+using Moq.Protected;
+using SearchEngineResultsCounting.Contracts;
+using SearchEngineResultsCounting.Engines;
+using SearchEngineResultsCounting.Services;
+using SearchEngineResultsCounting.Services.Aggregators;
+using SearchEngineResultsCounting.Services.Contract;
+using Xunit;
 
-namespace SearchEngineResultsCounting.Tests.BizLogic
+namespace SearchEngineResultsCounting.Tests.Services
 {
     public class ResultsCountingFacadeTests
     {

@@ -1,6 +1,4 @@
-using System.Collections;
-
-namespace SearchEngineResultsCounting.BizLogic.Contract
+namespace SearchEngineResultsCounting.Services.Contract
 {
     public class EngineResult
     {

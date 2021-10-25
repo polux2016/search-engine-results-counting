@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using Moq;
-using SearchEngineResultsCounting.BizLogic.Aggregators;
-using SearchEngineResultsCounting.BizLogic.Contract;
+using SearchEngineResultsCounting.Services.Aggregators;
+using SearchEngineResultsCounting.Services.Contract;
 using Xunit;
 
-namespace SearchEngineResultsCounting.Tests.BizLogic.Aggregators
+namespace SearchEngineResultsCounting.Tests.Services.Aggregators
 {
     public class TotalWinnerAggregatorTest
     {

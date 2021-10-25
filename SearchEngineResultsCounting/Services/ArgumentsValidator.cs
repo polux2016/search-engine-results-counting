@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using SearchEngineResultsCounting.Contracts;
 
-namespace SearchEngineResultsCounting.BizLogic
+namespace SearchEngineResultsCounting.Services
 {
     public class ArgumentsValidator : IArgumentsValidator
     {

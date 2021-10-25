@@ -2,11 +2,11 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SearchEngineResultsCounting.Contracts;
-using SearchEngineResultsCounting.BizLogic;
 using SearchEngineResultsCounting.Engines;
 using Microsoft.Extensions.Configuration;
-using SearchEngineResultsCounting.BizLogic.Contract;
-using SearchEngineResultsCounting.BizLogic.Aggregators;
+using SearchEngineResultsCounting.Services;
+using SearchEngineResultsCounting.Services.Aggregators;
+using SearchEngineResultsCounting.Services.Contract;
 
 namespace SearchEngineResultsCounting
 {
