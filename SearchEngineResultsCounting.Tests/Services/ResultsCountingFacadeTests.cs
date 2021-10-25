@@ -2,9 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Moq.Protected;
 using SearchEngineResultsCounting.Contracts;
-using SearchEngineResultsCounting.Engines;
 using SearchEngineResultsCounting.Services;
 using SearchEngineResultsCounting.Services.Aggregators;
 using SearchEngineResultsCounting.Services.Contract;
@@ -47,8 +45,9 @@ namespace SearchEngineResultsCounting.Tests.Services
         {
             var resultsCountingFacade = GetResultsCountingFacade(count1, count2, count3);
 
-            var actualResult = resultsCountingFacade.FindAndCompareResults(new string[] {text});
+            var actualResult = resultsCountingFacade.FindAndCompareResults(new[] {text});
 
+            Assert.NotNull(expectedResult);
             Assert.Equal(expectedResult.Replace("\n", Environment.NewLine), actualResult);
         }
 
@@ -79,18 +78,6 @@ namespace SearchEngineResultsCounting.Tests.Services
                     .ReturnsAsync(count.Value);
                 engines.Add(engine.Object);
             }
-        }
-
-        private void SetTheResponse(long totalResultsCount, Mock<GoogleEngine> googleEngineMock)
-        {
-            var responceStr = "{'searchInformation': {'totalResultsCount': '{" + totalResultsCount.ToString() + "}'}}";
-
-            googleEngineMock.Reset();
-            googleEngineMock.CallBase = true;
-
-            googleEngineMock.Protected()
-                .Setup<string>("GetString", ItExpr.IsAny<string>())
-                .Returns(responceStr);
         }
     }
 }

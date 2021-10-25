@@ -7,7 +7,7 @@ using SearchEngineResultsCounting.Services.Contract;
 
 namespace SearchEngineResultsCounting.Services.Aggregators
 {
-    public class ResultListAggregator : BaseAggregator, IAggregator
+    public class ResultListAggregator : BaseAggregator
     {
         private readonly ILogger<ResultListAggregator> _logger;
 

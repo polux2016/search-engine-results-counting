@@ -12,22 +12,19 @@ namespace SearchEngineResultsCounting.Tests.Engines
     public class GoogleEngineTests
     {
         private readonly Mock<GoogleEngine> _googleEngineMock;
-        private readonly Mock<ILogger<GoogleEngine>> _loggerMock;
-        private readonly Mock<IHttpClientFactory> _httpClientFactoryMock;
-        private readonly Mock<IConfiguration> _configMock;
 
         public GoogleEngineTests()
         {
-            _loggerMock = new Mock<ILogger<GoogleEngine>>();
+            var loggerMock = new Mock<ILogger<GoogleEngine>>();
 
-            _httpClientFactoryMock = new Mock<IHttpClientFactory>();
+            var httpClientFactoryMock = new Mock<IHttpClientFactory>();
 
-            _configMock = new Mock<IConfiguration>();
-            _configMock.SetupGet(x => x[It.IsAny<string>()]).Returns(string.Empty);
+            var configMock = new Mock<IConfiguration>();
+            configMock.SetupGet(x => x[It.IsAny<string>()]).Returns(string.Empty);
 
-            _googleEngineMock = new Mock<GoogleEngine>(_loggerMock.Object, 
-                _httpClientFactoryMock.Object,
-                _configMock.Object);
+            _googleEngineMock = new Mock<GoogleEngine>(loggerMock.Object, 
+                httpClientFactoryMock.Object,
+                configMock.Object);
         }
 
         private void SetTheResponse(long totalResultsCount)

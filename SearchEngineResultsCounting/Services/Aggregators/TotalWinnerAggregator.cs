@@ -1,12 +1,12 @@
+using Microsoft.Extensions.Logging;
+using SearchEngineResultsCounting.Services.Contract;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Extensions.Logging;
-using SearchEngineResultsCounting.Services.Contract;
 
 namespace SearchEngineResultsCounting.Services.Aggregators
 {
-    public class TotalWinnerAggregator : BaseAggregator, IAggregator
+    public class TotalWinnerAggregator : BaseAggregator
     {
         private readonly ILogger<TotalWinnerAggregator> _logger;
 
@@ -22,11 +22,12 @@ namespace SearchEngineResultsCounting.Services.Aggregators
             var groupResults = textResults.GroupBy(engineResult => engineResult.Text)
                 .Select(g => new
                 {
-                    Text = g.First().Text,
+                    g.First().Text,
                     Sum = g.Sum(er => er.Count)
                 });
-            var maxSum = groupResults.Max(gr => gr.Sum);
-            var winners = string.Join(", ", groupResults.OrderBy(gr => gr.Text)
+            var groupResultsList = groupResults.ToList();
+            var maxSum = groupResultsList.Max(gr => gr.Sum);
+            var winners = string.Join(", ", groupResultsList.OrderBy(gr => gr.Text)
                 .Where(gr => gr.Sum == maxSum)
                 .Select(gr => gr.Text));
             summaryResult.AppendLine($"Total winner(s): {winners}");
@@ -34,7 +35,7 @@ namespace SearchEngineResultsCounting.Services.Aggregators
 
         protected override bool Validate(List<EngineResult> textResults, StringBuilder summaryResult)
         {
-            if(!base.Validate(textResults, summaryResult))
+            if (!base.Validate(textResults, summaryResult))
             {
                 return false;
             }

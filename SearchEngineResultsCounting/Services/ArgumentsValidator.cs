@@ -7,13 +7,13 @@ namespace SearchEngineResultsCounting.Services
     {
         private readonly ILogger<ArgumentsValidator> _logger;
 
-        private string[] texts;
+        private string[] _texts;
 
         public string[] Texts
         {
             get
             {
-                return texts;
+                return _texts;
             }
         }
 
@@ -31,7 +31,7 @@ namespace SearchEngineResultsCounting.Services
             }
             else
             {
-                texts = args;
+                _texts = args;
                 _logger.LogInformation($"{args.Length} texts to search was found.");
             }
             return true;

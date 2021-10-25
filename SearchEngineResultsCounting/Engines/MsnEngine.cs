@@ -10,7 +10,7 @@ namespace SearchEngineResultsCounting.Engines
 {
     public class MsnEngine : ISearchEngine
     {
-        const string uriBase = "https://api.cognitive.microsoft.com/bing/v7.0/news/search";
+        const string UriBase = "https://api.cognitive.microsoft.com/bing/v7.0/news/search";
         private readonly string _accessKey;
         private readonly ILogger<MsnEngine> _logger;
         private readonly IHttpClientFactory _httpClientFactory;
@@ -34,17 +34,16 @@ namespace SearchEngineResultsCounting.Engines
 
         private async Task<long> GetMsnCount(string text)
         {
-            string responseStr = await GetString(GetUrl(text));
-            JsonValue response = null;
+            var responseStr = await GetString(GetUrl(text));
             try
             {
-                response = JsonObject.Parse(responseStr);
+                var response = JsonValue.Parse(responseStr);
                 return response["totalEstimatedMatches"];
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Can't parse the response. Msg: {ex.Message}. response string {responseStr}");
-                throw ex;
+                throw;
             }
         }
 
@@ -53,14 +52,14 @@ namespace SearchEngineResultsCounting.Engines
             using (var httpClient = _httpClientFactory.CreateClient())
             {
                 _logger.LogDebug($"GetString for url = {url}");
-                httpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", new string[] { _accessKey });
+                httpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", new[] { _accessKey });
                 return await httpClient.GetStringAsync(url);
             }
         }
 
         private string GetUrl(string text)
         {
-            return uriBase + "?q=" + Uri.EscapeDataString(text);
+            return UriBase + "?q=" + Uri.EscapeDataString(text);
         }
 
         public class Config

@@ -7,7 +7,7 @@ using SearchEngineResultsCounting.Services.Contract;
 
 namespace SearchEngineResultsCounting.Services.Aggregators
 {
-    public class EnginesWinnerAggregator : BaseAggregator, IAggregator
+    public class EnginesWinnerAggregator : BaseAggregator
     {
         private readonly ILogger<EnginesWinnerAggregator> _logger;
 
@@ -22,7 +22,10 @@ namespace SearchEngineResultsCounting.Services.Aggregators
 
             foreach (var group in textResults.GroupBy(engineResult => engineResult.EngineName))
             {
-                if (group is null) continue;
+                if (!group.Any())
+                {
+                    continue;
+                }
 
                 var maxCount = group.Max(er => er.Count);
                 var resultLine = string.Join(", ",

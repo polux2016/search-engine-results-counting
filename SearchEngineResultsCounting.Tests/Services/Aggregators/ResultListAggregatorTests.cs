@@ -11,17 +11,15 @@ namespace SearchEngineResultsCounting.Tests.Services.Aggregators
 {
     public class ResultListAggregatorTests
     {
-        private readonly string nl = Environment.NewLine;
-
-        private Mock<ILogger<ResultListAggregator>> _loggerMock;
+        private readonly string _nl = Environment.NewLine;
 
         private ResultListAggregator _aggregator;
 
         public ResultListAggregatorTests()
         {
-            _loggerMock = new Mock<ILogger<ResultListAggregator>>();
+            var loggerMock = new Mock<ILogger<ResultListAggregator>>();
 
-            _aggregator = new ResultListAggregator(_loggerMock.Object);
+            _aggregator = new ResultListAggregator(loggerMock.Object);
         }
 
         [Fact]
@@ -39,7 +37,7 @@ namespace SearchEngineResultsCounting.Tests.Services.Aggregators
 
             _aggregator.Append(textResult, sb);
 
-            Assert.Equal("Text 1: Test 1: 1 " + nl, sb.ToString());
+            Assert.Equal("Text 1: Test 1: 1 " + _nl, sb.ToString());
         }
     }
 }

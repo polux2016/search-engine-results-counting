@@ -32,7 +32,7 @@ namespace SearchEngineResultsCounting.Services
             if (!Validation(texts)) { return ""; }
 
             var summaryResult = new StringBuilder();
-            var textResults = AppendResults(texts, summaryResult);
+            var textResults = AppendResults(texts);
 
             foreach(var aggregator in _aggregators)
             {
@@ -64,10 +64,9 @@ namespace SearchEngineResultsCounting.Services
             return true;
         }
 
-        private List<EngineResult> AppendResults(string[] texts, StringBuilder summaryResult)
+        private List<EngineResult> AppendResults(string[] texts)
         {
             var textResults = new List<EngineResult>();
-            object sync = new Object();
 
             var promises = texts.Select(async text =>
                 {

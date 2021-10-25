@@ -10,7 +10,7 @@ namespace SearchEngineResultsCounting.Engines
 {
     public class GoogleEngine : ISearchEngine
     {
-        const string urlFormat = "https://www.googleapis.com/customsearch/v1?key={0}&cx=017576662512468239146:omuauf_lfve&q={1}";
+        const string UrlFormat = "https://www.googleapis.com/customsearch/v1?key={0}&cx=017576662512468239146:omuauf_lfve&q={1}";
         private readonly string _apiKey;
         private readonly ILogger<GoogleEngine> _logger;
 
@@ -36,17 +36,16 @@ namespace SearchEngineResultsCounting.Engines
 
         private async Task<long> GetGoogleCount(string text)
         {
-            string responseStr = await GetString(GetUrl(text));
-            JsonValue response = null;
+            var responseStr = await GetString(GetUrl(text));
             try
             {
-                response = JsonObject.Parse(responseStr);
+                var response = JsonValue.Parse(responseStr);
                 return long.Parse(response["searchInformation"]["totalResults"]);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Can't parse the response. Msg: {ex.Message}. response string {responseStr}");
-                throw ex;
+                throw;
             }
         }
 
@@ -61,7 +60,7 @@ namespace SearchEngineResultsCounting.Engines
 
         private string GetUrl(string text)
         {
-            return string.Format(urlFormat, _apiKey, Uri.EscapeDataString(text));
+            return string.Format(UrlFormat, _apiKey, Uri.EscapeDataString(text));
         }
 
         public class Config

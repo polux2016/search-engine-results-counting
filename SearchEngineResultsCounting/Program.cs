@@ -19,7 +19,7 @@ namespace SearchEngineResultsCounting
         static void Main(string[] args)
         {
             var configuration = ConfigureAppSettings();
-            ConfigureDI(configuration);
+            ConfigureDi(configuration);
             ConfigureLogging();
 
             try
@@ -63,7 +63,7 @@ namespace SearchEngineResultsCounting
             }
         }
 
-        private static void ConfigureDI(IConfiguration config)
+        private static void ConfigureDi(IConfiguration config)
         {
             _serviceProvider = new ServiceCollection()
                 .AddHttpClient()
@@ -78,7 +78,7 @@ namespace SearchEngineResultsCounting
                 .AddTransient<IAggregator, EnginesWinnerAggregator>()
                 .AddTransient<IAggregator, TotalWinnerAggregator>()
                 .AddTransient<IArgumentsValidator, ArgumentsValidator>()
-                .AddSingleton<IConfiguration>(config)
+                .AddSingleton(config)
                 .BuildServiceProvider();
         }
 

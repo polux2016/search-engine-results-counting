@@ -16,8 +16,8 @@ namespace SearchEngineResultsCounting.Tests.Services
         }
 
         [Theory]
-        [InlineData(new string[] {"first", "second"}, new string[] {"first", "second"})]
-        [InlineData(new string[] {"first"}, new string[] {"first"})]
+        [InlineData(new[] {"first", "second"}, new[] {"first", "second"})]
+        [InlineData(new[] {"first"}, new[] {"first"})]
         public void ArgumentsValidation(string[] args, string[] texts)
         {
             _argumentsValidator.Validate(args);
