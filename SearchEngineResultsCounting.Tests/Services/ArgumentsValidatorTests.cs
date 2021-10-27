@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging;
-using Moq;
+using NSubstitute;
 using SearchEngineResultsCounting.Services;
 using Xunit;
 
@@ -7,12 +7,12 @@ namespace SearchEngineResultsCounting.Tests.Services
 {
     public class ArgumentsValidatorTests
     {
-        private ArgumentsValidator _argumentsValidator;
+        private readonly ArgumentsValidator _argumentsValidator;
 
         public ArgumentsValidatorTests()
         {
-            var loggerMock = new Mock<ILogger<ArgumentsValidator>>();
-            _argumentsValidator = new ArgumentsValidator(loggerMock.Object);
+            var logger = Substitute.For<ILogger<ArgumentsValidator>>();
+            _argumentsValidator = new ArgumentsValidator(logger);
         }
 
         [Theory]

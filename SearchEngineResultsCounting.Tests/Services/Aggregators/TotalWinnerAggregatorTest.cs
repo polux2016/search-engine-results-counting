@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Extensions.Logging;
-using Moq;
+using NSubstitute;
 using SearchEngineResultsCounting.Services.Aggregators;
 using SearchEngineResultsCounting.Services.Contract;
 using Xunit;
@@ -17,9 +17,9 @@ namespace SearchEngineResultsCounting.Tests.Services.Aggregators
 
         public TotalWinnerAggregatorTest()
         {
-            var loggerMock = new Mock<ILogger<TotalWinnerAggregator>>();
+            var logger = Substitute.For<ILogger<TotalWinnerAggregator>>();
 
-            _aggregator = new TotalWinnerAggregator(loggerMock.Object);
+            _aggregator = new TotalWinnerAggregator(logger);
         }
 
         [Fact]

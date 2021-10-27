@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Extensions.Logging;
-using Moq;
+using NSubstitute;
 using SearchEngineResultsCounting.Services.Aggregators;
 using SearchEngineResultsCounting.Services.Contract;
 using Xunit;
@@ -13,13 +13,13 @@ namespace SearchEngineResultsCounting.Tests.Services.Aggregators
     {
         private readonly string _nl = Environment.NewLine;
 
-        private ResultListAggregator _aggregator;
+        private readonly ResultListAggregator _aggregator;
 
         public ResultListAggregatorTests()
         {
-            var loggerMock = new Mock<ILogger<ResultListAggregator>>();
+            var logger = Substitute.For<ILogger<ResultListAggregator>>();
 
-            _aggregator = new ResultListAggregator(loggerMock.Object);
+            _aggregator = new ResultListAggregator(logger);
         }
 
         [Fact]

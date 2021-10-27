@@ -41,12 +41,12 @@ namespace SearchEngineResultsCounting.Services.Aggregators
         {
             if (textResults is null)
             {
-                throw new ArgumentNullException("textResults");
+                throw new ArgumentNullException(nameof(textResults));
             }
 
             if (summaryResult is null)
             {
-                throw new ArgumentNullException("summaryResult");
+                throw new ArgumentNullException(nameof(summaryResult));
             }
 
             if (textResults.Count == 0)

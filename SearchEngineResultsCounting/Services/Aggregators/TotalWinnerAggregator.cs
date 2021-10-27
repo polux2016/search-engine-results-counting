@@ -39,6 +39,7 @@ namespace SearchEngineResultsCounting.Services.Aggregators
             {
                 return false;
             }
+
             if (textResults.Count == 0)
             {
                 _logger.LogInformation("No text results to append total winner.");

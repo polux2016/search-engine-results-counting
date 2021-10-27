@@ -1,55 +1,59 @@
-using System.Net.Http;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Moq;
-using Moq.Protected;
+using Microsoft.Extensions.Options;
+using NSubstitute;
+using SearchEngineResultsCounting.Contracts.Configurations;
 using SearchEngineResultsCounting.Engines;
+using SearchEngineResultsCounting.Services.Contract;
 using Xunit;
 
 namespace SearchEngineResultsCounting.Tests.Engines
 {
     public class MsnEngineTests
     {
-        private readonly Mock<MsnEngine> _msnEngineMock;
+        private readonly MsnEngine _msnEngine;
+        private readonly MsnEngineConfiguration _msnEngineConfiguration;
+        private readonly IHttpClientWrapper _httpClientWrapper;
 
         public MsnEngineTests()
         {
-            var loggerMock = new Mock<ILogger<MsnEngine>>();
+            var logger = Substitute.For<ILogger<MsnEngine>>();
 
-            var httpClientFactoryMock = new Mock<IHttpClientFactory>();
+            _httpClientWrapper = Substitute.For<IHttpClientWrapper>();
+            _httpClientWrapper.GetJsonAsync<MsnEngineResponse>(Arg.Any<string>())
+                .Returns(new MsnEngineResponse());
 
-            var configMock = new Mock<IConfiguration>();
-            configMock.SetupGet(x => x[It.IsAny<string>()]).Returns(string.Empty);
+            var options = Substitute.For<IOptions<MsnEngineConfiguration>>();
+            _msnEngineConfiguration = new MsnEngineConfiguration();
+            options.Value.Returns(_msnEngineConfiguration);
 
-            _msnEngineMock = new Mock<MsnEngine>(loggerMock.Object, 
-                httpClientFactoryMock.Object,
-                configMock.Object
-            );
+            _msnEngine = new MsnEngine(logger, _httpClientWrapper, options);
         }
 
-        private void SetTheResponse(long totalResultsCount)
+        [Fact]
+        public async void GetResultsCount_EngineDisabled_NoHttpCalls()
         {
-            var responceStr = "{\"totalEstimatedMatches\": " + totalResultsCount.ToString() + "}";
+            //arrange
+            _msnEngineConfiguration.Enabeld = false;
 
-            _msnEngineMock.Reset();
-            _msnEngineMock.CallBase = true;
+            //act
+            await _msnEngine.GetResultsCount(string.Empty);
 
-            _msnEngineMock.Protected()
-                .Setup<Task<string>>("GetString", ItExpr.IsAny<string>())
-                .Returns(Task.FromResult(responceStr));
+            //assert
+            await _httpClientWrapper.DidNotReceive().GetJsonAsync<MsnEngineResponse>(Arg.Any<string>());
         }
 
-        [Theory]
-        [InlineData("", 1000)]
-        [InlineData("test", 1000)]
-        public async void BaseGetCountTest(string text, long count)
+
+        [Fact]
+        public async void GetResultsCount_EngineEnabled_CallHttpWrapper()
         {
-            SetTheResponse(count);
+            //arrange
+            _msnEngineConfiguration.Enabeld = true;
 
-            var result = await _msnEngineMock.Object.GetResultsCount(text);
+            //act
+            await _msnEngine.GetResultsCount(string.Empty);
 
-            Assert.Equal(count, result);
+            //assert
+            await _httpClientWrapper.Received(1).GetJsonAsync<MsnEngineResponse>(Arg.Any<string>());
         }
     }
 }

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
-using Moq;
+using NSubstitute;
 using SearchEngineResultsCounting.Contracts;
 using SearchEngineResultsCounting.Services;
 using SearchEngineResultsCounting.Services.Aggregators;
@@ -12,24 +12,24 @@ namespace SearchEngineResultsCounting.Tests.Services
 {
     public class ResultsCountingFacadeTests
     {
-        private readonly Mock<ILogger<ResultsCountingFacade>> _loggerMock;
-        private readonly Mock<ILogger<ResultListAggregator>> _loggerResultListAggregatorMock;
-        private readonly Mock<ILogger<EnginesWinnerAggregator>> _loggerEnginesWinnerAggregatorMock;
-        private readonly Mock<ILogger<TotalWinnerAggregator>> _loggerTotalWinnerAggregatorMock;
-        private readonly Mock<ISearchEngine> _searchEngineFirst;
-        private readonly Mock<ISearchEngine> _searchEngineSecond;
-        private readonly Mock<ISearchEngine> _searchEngineThird;
+        private readonly ILogger<ResultsCountingFacade> _logger;
+        private readonly ILogger<ResultListAggregator> _loggerResultListAggregator;
+        private readonly ILogger<EnginesWinnerAggregator> _loggerEnginesWinnerAggregator;
+        private readonly ILogger<TotalWinnerAggregator> _loggerTotalWinnerAggregator;
+        private readonly ISearchEngine _searchEngineFirst;
+        private readonly ISearchEngine _searchEngineSecond;
+        private readonly ISearchEngine _searchEngineThird;
 
         public ResultsCountingFacadeTests()
         {
-            _loggerMock = new Mock<ILogger<ResultsCountingFacade>>();
-            _loggerResultListAggregatorMock = new Mock<ILogger<ResultListAggregator>>();
-            _loggerEnginesWinnerAggregatorMock = new Mock<ILogger<EnginesWinnerAggregator>>();
-            _loggerTotalWinnerAggregatorMock = new Mock<ILogger<TotalWinnerAggregator>>();
+            _logger = Substitute.For<ILogger<ResultsCountingFacade>>();
+            _loggerResultListAggregator = Substitute.For<ILogger<ResultListAggregator>>();
+            _loggerEnginesWinnerAggregator = Substitute.For<ILogger<EnginesWinnerAggregator>>();
+            _loggerTotalWinnerAggregator = Substitute.For<ILogger<TotalWinnerAggregator>>();
 
-            _searchEngineFirst = new Mock<ISearchEngine>().As<ISearchEngine>();
-            _searchEngineSecond = new Mock<ISearchEngine>().As<ISearchEngine>();
-            _searchEngineThird = new Mock<ISearchEngine>().As<ISearchEngine>();
+            _searchEngineFirst = Substitute.For<ISearchEngine>();
+            _searchEngineSecond = Substitute.For<ISearchEngine>();
+            _searchEngineThird = Substitute.For<ISearchEngine>();
         }
 
         [Theory]
@@ -62,21 +62,21 @@ namespace SearchEngineResultsCounting.Tests.Services
             AddEngineIfNeeded(count3, _searchEngineThird, engines);
 
             var aggregators = new List<IAggregator>() {
-                new ResultListAggregator(_loggerResultListAggregatorMock.Object),
-                new EnginesWinnerAggregator(_loggerEnginesWinnerAggregatorMock.Object),
-                new TotalWinnerAggregator(_loggerTotalWinnerAggregatorMock.Object)
+                new ResultListAggregator(_loggerResultListAggregator),
+                new EnginesWinnerAggregator(_loggerEnginesWinnerAggregator),
+                new TotalWinnerAggregator(_loggerTotalWinnerAggregator)
             };
 
-            return new ResultsCountingFacade(engines, _loggerMock.Object, aggregators);
+            return new ResultsCountingFacade(engines, _logger, aggregators);
         }
 
-        private void AddEngineIfNeeded(long? count, Mock<ISearchEngine> engine, List<ISearchEngine> engines)
+        private void AddEngineIfNeeded(long? count, ISearchEngine engine, List<ISearchEngine> engines)
         {
             if (count.HasValue)
             {
-                engine.Setup(se => se.GetResultsCount(It.IsAny<string>()))
-                    .ReturnsAsync(count.Value);
-                engines.Add(engine.Object);
+                engine.GetResultsCount(Arg.Any<string>())
+                    .Returns(count.Value);
+                engines.Add(engine);
             }
         }
     }
