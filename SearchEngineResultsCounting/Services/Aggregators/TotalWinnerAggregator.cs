@@ -1,13 +1,12 @@
-using System;
+using Microsoft.Extensions.Logging;
+using SearchEngineResultsCounting.Services.Contract;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Extensions.Logging;
-using SearchEngineResultsCounting.BizLogic.Contract;
 
-namespace SearchEngineResultsCounting.BizLogic.Aggregators
+namespace SearchEngineResultsCounting.Services.Aggregators
 {
-    public class TotalWinnerAggregator : BaseAggregator, IAggregator
+    public class TotalWinnerAggregator : BaseAggregator
     {
         private readonly ILogger<TotalWinnerAggregator> _logger;
 
@@ -23,11 +22,12 @@ namespace SearchEngineResultsCounting.BizLogic.Aggregators
             var groupResults = textResults.GroupBy(engineResult => engineResult.Text)
                 .Select(g => new
                 {
-                    Text = g.First().Text,
+                    g.First().Text,
                     Sum = g.Sum(er => er.Count)
                 });
-            var maxSum = groupResults.Max(gr => gr.Sum);
-            var winners = string.Join(", ", groupResults.OrderBy(gr => gr.Text)
+            var groupResultsList = groupResults.ToList();
+            var maxSum = groupResultsList.Max(gr => gr.Sum);
+            var winners = string.Join(", ", groupResultsList.OrderBy(gr => gr.Text)
                 .Where(gr => gr.Sum == maxSum)
                 .Select(gr => gr.Text));
             summaryResult.AppendLine($"Total winner(s): {winners}");
@@ -35,10 +35,11 @@ namespace SearchEngineResultsCounting.BizLogic.Aggregators
 
         protected override bool Validate(List<EngineResult> textResults, StringBuilder summaryResult)
         {
-            if(!base.Validate(textResults, summaryResult))
+            if (!base.Validate(textResults, summaryResult))
             {
                 return false;
             }
+
             if (textResults.Count == 0)
             {
                 _logger.LogInformation("No text results to append total winner.");

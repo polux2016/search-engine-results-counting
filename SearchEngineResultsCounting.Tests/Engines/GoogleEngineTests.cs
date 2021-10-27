@@ -1,57 +1,59 @@
-using System.Net.Http;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Moq;
-using Moq.Protected;
+using Microsoft.Extensions.Options;
+using NSubstitute;
+using SearchEngineResultsCounting.Contracts.Configurations;
 using SearchEngineResultsCounting.Engines;
+using SearchEngineResultsCounting.Services.Contract;
 using Xunit;
 
 namespace SearchEngineResultsCounting.Tests.Engines
 {
     public class GoogleEngineTests
     {
-        private readonly Mock<GoogleEngine> _googleEngineMock;
-        private readonly Mock<ILogger<GoogleEngine>> _loggerMock;
-        private readonly Mock<IHttpClientFactory> _httpClientFactoryMock;
-        private readonly Mock<IConfiguration> _configMock;
+        private readonly GoogleEngine _googleEngine;
+        private readonly GoogleEngineConfiguration _googleEngineConfiguration;
+        private readonly IHttpClientWrapper _httpClientWrapper;
 
         public GoogleEngineTests()
         {
-            _loggerMock = new Mock<ILogger<GoogleEngine>>();
+            var logger = Substitute.For<ILogger<GoogleEngine>>();
 
-            _httpClientFactoryMock = new Mock<IHttpClientFactory>();
+            _httpClientWrapper = Substitute.For<IHttpClientWrapper>();
+            _httpClientWrapper.GetJsonAsync<GoogleEngineResponse>(Arg.Any<string>())
+                .Returns(new GoogleEngineResponse());
 
-            _configMock = new Mock<IConfiguration>();
-            _configMock.SetupGet(x => x[It.IsAny<string>()]).Returns(string.Empty);
+            var options = Substitute.For<IOptions<GoogleEngineConfiguration>>();
+            _googleEngineConfiguration = new GoogleEngineConfiguration();
+            options.Value.Returns(_googleEngineConfiguration);
 
-            _googleEngineMock = new Mock<GoogleEngine>(_loggerMock.Object, 
-                _httpClientFactoryMock.Object,
-                _configMock.Object);
+            _googleEngine = new GoogleEngine(logger, _httpClientWrapper, options);
         }
 
-        private void SetTheResponse(long totalResultsCount)
+        [Fact]
+        public async void GetResultsCount_EngineDisabled_NoHttpCalls()
         {
-            var responceStr = "{\"searchInformation\": {\"totalResults\": \"" + totalResultsCount.ToString() + "\"}}";
+            //arrange
+            _googleEngineConfiguration.Enabeld = false;
 
-            _googleEngineMock.Reset();
-            _googleEngineMock.CallBase = true;
+            //act
+            await _googleEngine.GetResultsCount(string.Empty);
 
-            _googleEngineMock.Protected()
-                .Setup<Task<string>>("GetString", ItExpr.IsAny<string>())
-                .Returns(Task.FromResult(responceStr));
+            //assert
+            await _httpClientWrapper.DidNotReceive().GetJsonAsync<GoogleEngineResponse>(Arg.Any<string>());
         }
 
-        [Theory]
-        [InlineData("", 1000)]
-        [InlineData("test", 1000)]
-        public async void BaseGetCountTest(string text, long count)
+
+        [Fact]
+        public async void GetResultsCount_EngineEnabled_CallHttpWrapper()
         {
-            SetTheResponse(count);
+            //arrange
+            _googleEngineConfiguration.Enabeld = true;
 
-            var result = await _googleEngineMock.Object.GetResultsCount(text);
+            //act
+            await _googleEngine.GetResultsCount(string.Empty);
 
-            Assert.Equal(count, result);
+            //assert
+            await _httpClientWrapper.Received(1).GetJsonAsync<GoogleEngineResponse>(Arg.Any<string>());
         }
     }
 }

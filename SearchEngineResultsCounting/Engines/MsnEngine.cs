@@ -1,28 +1,32 @@
-using System;
-using System.Net.Http;
-using System.Json;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SearchEngineResultsCounting.Contracts;
+using SearchEngineResultsCounting.Contracts.Configurations;
+using SearchEngineResultsCounting.Services.Contract;
+using System;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 
 namespace SearchEngineResultsCounting.Engines
 {
     public class MsnEngine : ISearchEngine
     {
-        const string uriBase = "https://api.cognitive.microsoft.com/bing/v7.0/news/search";
-        private readonly string _accessKey;
-        private readonly ILogger<MsnEngine> _logger;
-        private readonly IHttpClientFactory _httpClientFactory;
+        private const string UriBase = "https://api.cognitive.microsoft.com/bing/v7.0/news/search";
 
-        public string Name { get; } = "MSN";
+        private const string OcpApimSubscriptionKey = "Ocp-Apim-Subscription-Key";
+        
+        private readonly ILogger<MsnEngine> _logger;
+        private readonly IHttpClientWrapper _httpClientWrapper;
+        private readonly MsnEngineConfiguration _msnEngineConfiguration;
+
+        public string Name => nameof(MsnEngine);
+
         public MsnEngine(ILogger<MsnEngine> logger,
-            IHttpClientFactory httpClientFactory,
-            IConfiguration config)
+            IHttpClientWrapper httpClientWrapper,
+            IOptions<MsnEngineConfiguration> msnEngineConfiguration)
         {
             _logger = logger;
-            _httpClientFactory = httpClientFactory;
-            _accessKey = config["MsnEngineConfig:AccessKey"];
+            _httpClientWrapper = httpClientWrapper;
+            _msnEngineConfiguration = msnEngineConfiguration.Value;
         }
 
         public async Task<long> GetResultsCount(string text)
@@ -34,38 +38,28 @@ namespace SearchEngineResultsCounting.Engines
 
         private async Task<long> GetMsnCount(string text)
         {
-            string responseStr = await GetString(GetUrl(text));
-            JsonValue response = null;
-            try
+            if (!_msnEngineConfiguration.Enabeld)
             {
-                response = JsonObject.Parse(responseStr);
-                return response["totalEstimatedMatches"];
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Can't parse the response. Msg: {ex.Message}. response string {responseStr}");
-                throw ex;
-            }
-        }
+                _logger.LogInformation($"{nameof(MsnEngine)} disabled.");
 
-        protected virtual async Task<string> GetString(string url)
-        {
-            using (var httpClient = _httpClientFactory.CreateClient())
-            {
-                _logger.LogDebug($"GetString for url = {url}");
-                httpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", new string[] { _accessKey });
-                return await httpClient.GetStringAsync(url);
+                return 0;
             }
+
+            var url = GetUrl(text);
+
+            _httpClientWrapper.AddValueToHeader(OcpApimSubscriptionKey, new[]
+            {
+                _msnEngineConfiguration.AccessKey
+            });
+
+            var response = await _httpClientWrapper.GetJsonAsync<MsnEngineResponse>(url);
+
+            return response.TotalEstimatedMatches;
         }
 
         private string GetUrl(string text)
         {
-            return uriBase + "?q=" + Uri.EscapeDataString(text);
-        }
-
-        public class Config
-        {
-            public string AccessKey;
+            return UriBase + "?q=" + Uri.EscapeDataString(text);
         }
     }
 }

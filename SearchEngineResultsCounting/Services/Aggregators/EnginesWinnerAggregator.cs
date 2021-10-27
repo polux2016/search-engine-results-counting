@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Extensions.Logging;
-using SearchEngineResultsCounting.BizLogic.Contract;
+using SearchEngineResultsCounting.Services.Contract;
 
-namespace SearchEngineResultsCounting.BizLogic.Aggregators
+namespace SearchEngineResultsCounting.Services.Aggregators
 {
-    public class EnginesWinnerAggregator : BaseAggregator, IAggregator
+    public class EnginesWinnerAggregator : BaseAggregator
     {
         private readonly ILogger<EnginesWinnerAggregator> _logger;
 
@@ -22,7 +22,10 @@ namespace SearchEngineResultsCounting.BizLogic.Aggregators
 
             foreach (var group in textResults.GroupBy(engineResult => engineResult.EngineName))
             {
-                if (group is null) continue;
+                if (!group.Any())
+                {
+                    continue;
+                }
 
                 var maxCount = group.Max(er => er.Count);
                 var resultLine = string.Join(", ",
@@ -38,12 +41,12 @@ namespace SearchEngineResultsCounting.BizLogic.Aggregators
         {
             if (textResults is null)
             {
-                throw new ArgumentNullException("textResults");
+                throw new ArgumentNullException(nameof(textResults));
             }
 
             if (summaryResult is null)
             {
-                throw new ArgumentNullException("summaryResult");
+                throw new ArgumentNullException(nameof(summaryResult));
             }
 
             if (textResults.Count == 0)

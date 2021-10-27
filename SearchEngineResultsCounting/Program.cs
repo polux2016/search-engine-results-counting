@@ -1,26 +1,21 @@
-﻿using System;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SearchEngineResultsCounting.Contracts;
-using SearchEngineResultsCounting.BizLogic;
-using SearchEngineResultsCounting.Engines;
-using Microsoft.Extensions.Configuration;
-using SearchEngineResultsCounting.BizLogic.Contract;
-using SearchEngineResultsCounting.BizLogic.Aggregators;
+using System;
 
 namespace SearchEngineResultsCounting
 {
-    class Program
+    internal class Program
     {
-        static ILogger _logger;
+        private static ILogger _logger;
 
-        static IServiceProvider _serviceProvider;
+        private static IServiceProvider _serviceProvider;
 
         static void Main(string[] args)
         {
-            var configuration = ConfigureAppSettings();
-            ConfigureDI(configuration);
-            ConfigureLogging();
+            var startup = new Startup();
+            _serviceProvider = startup.ConfigureServiceProvider();
+            _logger = _serviceProvider.GetService<ILogger<Program>>();
 
             try
             {
@@ -37,54 +32,22 @@ namespace SearchEngineResultsCounting
             }
         }
 
-        private static IConfiguration ConfigureAppSettings()
-        {
-            IConfiguration config = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", false, true)
-                .Build();
-            return config;
-        }
-
         private static void RunApp(string[] args)
         {
             var argumentsValidator = _serviceProvider.GetService<IArgumentsValidator>();
             if (argumentsValidator.Validate(args))
             {
-                var sepparator = new string('=', 50);
-                var lineSepparator = $"{sepparator} Result report {sepparator}{Environment.NewLine}";
+                var separator = new string('=', 50);
+                var lineSeparator = $"{separator} Result report {separator}{Environment.NewLine}";
                 var manager = _serviceProvider.GetService<IResultsCountingFacade>();
                 var result = manager.FindAndCompareResults(argumentsValidator.Texts);
-                Console.WriteLine($"{lineSepparator}{result}{lineSepparator}");
+                Console.WriteLine($"{lineSeparator}{result}{lineSeparator}");
                 Console.ReadKey();
             }
             else
             {
                 _logger.LogError("Arguments not valid. Check it and try one more time.");
             }
-        }
-
-        private static void ConfigureDI(IConfiguration config)
-        {
-            _serviceProvider = new ServiceCollection()
-                .AddHttpClient()
-                .AddLogging(builder => builder
-                    .AddConsole()
-                    .SetMinimumLevel(config.GetSection("LogLevel").Get<LogLevel>()))
-                .AddTransient<ISearchEngine, GoogleEngine>()
-                .AddTransient<ISearchEngine, MsnEngine>()
-                .AddTransient<IResultsCountingFacade, ResultsCountingFacade>()
-                .AddTransient<IArgumentsValidator, ArgumentsValidator>()
-                .AddTransient<IAggregator, ResultListAggregator>()
-                .AddTransient<IAggregator, EnginesWinnerAggregator>()
-                .AddTransient<IAggregator, TotalWinnerAggregator>()
-                .AddTransient<IArgumentsValidator, ArgumentsValidator>()
-                .AddSingleton<IConfiguration>(config)
-                .BuildServiceProvider();
-        }
-
-        private static void ConfigureLogging()
-        {
-            _logger = _serviceProvider.GetService<ILogger<Program>>();
         }
     }
 }

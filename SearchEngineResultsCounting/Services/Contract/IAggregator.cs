@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SearchEngineResultsCounting.BizLogic.Contract
+namespace SearchEngineResultsCounting.Services.Contract
 {
     public interface IAggregator
     {

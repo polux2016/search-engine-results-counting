@@ -1,23 +1,23 @@
-using Xunit;
-using Moq;
-using SearchEngineResultsCounting.BizLogic;
 using Microsoft.Extensions.Logging;
+using NSubstitute;
+using SearchEngineResultsCounting.Services;
+using Xunit;
 
-namespace SearchEngineResultsCounting.Tests.BizLogic
+namespace SearchEngineResultsCounting.Tests.Services
 {
     public class ArgumentsValidatorTests
     {
-        private ArgumentsValidator _argumentsValidator;
+        private readonly ArgumentsValidator _argumentsValidator;
 
         public ArgumentsValidatorTests()
         {
-            var loggerMock = new Mock<ILogger<ArgumentsValidator>>();
-            _argumentsValidator = new ArgumentsValidator(loggerMock.Object);
+            var logger = Substitute.For<ILogger<ArgumentsValidator>>();
+            _argumentsValidator = new ArgumentsValidator(logger);
         }
 
         [Theory]
-        [InlineData(new string[] {"first", "second"}, new string[] {"first", "second"})]
-        [InlineData(new string[] {"first"}, new string[] {"first"})]
+        [InlineData(new[] {"first", "second"}, new[] {"first", "second"})]
+        [InlineData(new[] {"first"}, new[] {"first"})]
         public void ArgumentsValidation(string[] args, string[] texts)
         {
             _argumentsValidator.Validate(args);

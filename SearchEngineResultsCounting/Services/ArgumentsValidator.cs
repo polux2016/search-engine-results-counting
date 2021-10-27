@@ -1,19 +1,19 @@
 using Microsoft.Extensions.Logging;
 using SearchEngineResultsCounting.Contracts;
 
-namespace SearchEngineResultsCounting.BizLogic
+namespace SearchEngineResultsCounting.Services
 {
     public class ArgumentsValidator : IArgumentsValidator
     {
         private readonly ILogger<ArgumentsValidator> _logger;
 
-        private string[] texts;
+        private string[] _texts;
 
         public string[] Texts
         {
             get
             {
-                return texts;
+                return _texts;
             }
         }
 
@@ -31,7 +31,7 @@ namespace SearchEngineResultsCounting.BizLogic
             }
             else
             {
-                texts = args;
+                _texts = args;
                 _logger.LogInformation($"{args.Length} texts to search was found.");
             }
             return true;

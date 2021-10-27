@@ -2,26 +2,24 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Extensions.Logging;
-using Moq;
-using SearchEngineResultsCounting.BizLogic.Aggregators;
-using SearchEngineResultsCounting.BizLogic.Contract;
+using NSubstitute;
+using SearchEngineResultsCounting.Services.Aggregators;
+using SearchEngineResultsCounting.Services.Contract;
 using Xunit;
 
-namespace SearchEngineResultsCounting.Tests.BizLogic.Aggregators
+namespace SearchEngineResultsCounting.Tests.Services.Aggregators
 {
     public class EnginesWinnerAggregatorTests
     {
-        private readonly string nl = Environment.NewLine;
+        private readonly string _nl = Environment.NewLine;
 
-        private Mock<ILogger<EnginesWinnerAggregator>> _loggerMock;
-
-        private EnginesWinnerAggregator _aggregator;
+        private readonly EnginesWinnerAggregator _aggregator;
 
         public EnginesWinnerAggregatorTests()
         {
-            _loggerMock = new Mock<ILogger<EnginesWinnerAggregator>>();
+            var logger = Substitute.For<ILogger<EnginesWinnerAggregator>>();
 
-            _aggregator = new EnginesWinnerAggregator(_loggerMock.Object);
+            _aggregator = new EnginesWinnerAggregator(logger);
         }
 
         [Fact]
@@ -39,7 +37,7 @@ namespace SearchEngineResultsCounting.Tests.BizLogic.Aggregators
 
             _aggregator.Append(textResult, sb);
 
-            Assert.Equal("Test 1 winner(s): Text 1 " + nl, sb.ToString());
+            Assert.Equal("Test 1 winner(s): Text 1 " + _nl, sb.ToString());
         }
     }
 }
